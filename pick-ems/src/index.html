@@ -6,8 +6,27 @@
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <meta name="theme-color" content="#18181b" />
+  <link
+    rel="stylesheet"
+    href="theme-light.css"
+    media="not (prefers-color-scheme: dark)"
+  />
+  <link
+    rel="stylesheet"
+    href="theme-dark.css"
+    media="(prefers-color-scheme: dark)"
+  />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap"
+    rel="stylesheet"
+  />
+  <link
+    href="https://fonts.googleapis.com/icon?family=Material+Icons"
+    rel="stylesheet"
+  />
 </head>
-<body>
-  <app-root></app-root>
+<body class="px-3 py-4 flex flex-column overflow-auto">
+  <app-root class="h-full w-full block"></app-root>
 </body>
 </html>

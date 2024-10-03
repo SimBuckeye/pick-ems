@@ -20,6 +20,7 @@
               "zone.js"
             ],
             "tsConfig": "tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
             "assets": [
               {
                 "glob": "**/*",
@@ -27,7 +28,18 @@
               }
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.scss",
+              "node_modules/primeng/resources/primeng.min.css",
+              {
+                "input": "src/theme-light.scss",
+                "bundleName": "theme-light",
+                "inject": false
+              },
+              {
+                "input": "src/theme-dark.scss",
+                "bundleName": "theme-dark",
+                "inject": false
+              }
             ],
             "scripts": [],
             "server": "src/main.server.ts",
@@ -90,12 +102,17 @@
               }
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.scss",
+              "node_modules/primeng/resources/themes/lara-light-blue/theme.css",
+              "node_modules/primeng/resources/primeng.min.css"
             ],
             "scripts": []
           }
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "4a1e6e9b-bf3a-4b3c-aa15-1beea54c2c94"
   }
 }
