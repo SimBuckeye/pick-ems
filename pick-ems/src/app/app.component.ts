@@ -1,13 +1,43 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { Router, RouterOutlet } from '@angular/router';
+import { SupabaseClient } from '@supabase/supabase-js';
+import { MenubarModule } from 'primeng/menubar';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  imports: [RouterOutlet, ToastModule, MenubarModule],
+  template: `
+  <div className="pick-ems">
+    <p-menubar [model]="menuItems" autoHide="false" />
+  </div>
+  <p-toast/>
+  <router-outlet />
+  `,
+  styles: `
+  `
 })
 export class AppComponent {
-  title = 'pick-ems';
+  title = 'Pick-ems';
+  router = inject(Router);
+  supabase = inject(SupabaseClient);
+
+  menuItems = [
+    {
+      label: 'Standings',
+      command: () => this.router.navigate(["/standings"])
+    },
+    {
+      label: 'Make Picks',
+      command: () => this.router.navigate(["/make-picks"])
+    },
+    {
+      label: 'Log Out',
+      command: () => {
+        this.supabase.auth.signOut();
+        this.router.navigate(['/login']);
+      }
+    }
+  ]
 }
