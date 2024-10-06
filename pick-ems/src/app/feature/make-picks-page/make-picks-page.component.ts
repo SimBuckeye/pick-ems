@@ -1,6 +1,8 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { SupabaseClient } from '@supabase/supabase-js';
+import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { SelectButtonModule } from 'primeng/selectbutton';
@@ -10,9 +12,14 @@ import { SelectButtonModule } from 'primeng/selectbutton';
   standalone: true,
   imports: [CardModule, SelectButtonModule, ReactiveFormsModule, ButtonModule],
   template: `
-    <div>{{JSON.stringify(user)}}</div>
-    @if(picksAreLocked){
+    @if(loading){
+      <h2>loading...</h2>
+    }@else if(picksAreLocked){
       <h2>Picks are currently locked</h2>
+    }@else if(!userId){
+      <h2>Current user not found. Try logging out and back in.</h2>
+    }@else if(userHasPicks){
+      <h2>You have already submitted picks for the current round.</h2>
     }@else {
       <h4>Picks now available for week {{currentRound.week}}. Picks lock at {{picksLockAt}}.</h4>
 
@@ -34,7 +41,7 @@ import { SelectButtonModule } from 'primeng/selectbutton';
             styleClass="w-full"
             type="submit"
             [disabled]="!form.valid"
-            label="Log In"
+            label="Submit"
             />
           </form>
       </div>
@@ -47,6 +54,8 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 })
 export default class MakePicksPageComponent implements OnInit {
   private readonly supabase: SupabaseClient = inject(SupabaseClient);
+  private readonly router = inject(Router);
+  private readonly messageService = inject(MessageService);
 
   currentRound: any;
   picksLockAt: Date | undefined;
@@ -56,10 +65,14 @@ export default class MakePicksPageComponent implements OnInit {
   JSON = JSON;
   form: FormGroup | undefined;
   user: any;
+  userHasPicks: boolean = false;
+  loading: boolean = true;
 
   private async onLoad() {
     let { data, error } = await this.supabase.from('current_round').select('*');
-    if (!error && data && data.length > 0) {
+    if(error){
+      this.messageService.add({detail: "Error retrieving details on the current round: " + error.details, severity: "error"});
+    }else if (data && data.length > 0) {
       this.currentRound = data[0];
       this.picksLockAt = new Date(this.currentRound.picks_lock_at);
       if(new Date() < this.picksLockAt){
@@ -67,8 +80,10 @@ export default class MakePicksPageComponent implements OnInit {
       }
     }
 
-    let {data: matchupsData, error: matchupsError} = await this.supabase.from('v_matchup').select("*").eq('week',6);
-    if(!matchupsError){
+    let {data: matchupsData, error: matchupsError} = await this.supabase.from('v_matchup').select("*").eq('week',this.currentRound.week);
+    if(matchupsError){
+      this.messageService.add({detail: "Error retrieving details on the current matchups: " + error?.details, severity: "error"});
+    } else {
       this.matchups = matchupsData;
       const group: any = {};
       this.matchups.forEach((matchup: any) => {
@@ -80,20 +95,44 @@ export default class MakePicksPageComponent implements OnInit {
     const uuid = (await this.supabase.auth.getUser()).data.user?.id;
     if(uuid){
       let {data: userData, error: userError} = await this.supabase.from("auth_user").select("*").eq('uuid', uuid);
-      if(!userError && userData && userData.length === 1){
+      if(userError){
+        this.messageService.add({detail: "Error retrieving details on the logged-in user: " + error?.details, severity: "error"});
+      }
+      if(userData && userData.length === 1){
         this.userId = userData[0].id;
       }
     }
 
-    this.user = this.supabase.auth.getUser();
+    if(this.userId){
+      let {data: pickResultData, error: pickResultError} = await this.supabase.from("v_pick_result").select("*").eq('picker_id', this.userId).eq('week', this.currentRound.week).eq('year', this.currentRound.year);
+      if(pickResultError){
+        this.messageService.add({detail: "Error retrieving the list of picks: " + error?.details, severity: "error"});
+      }
+      if(pickResultData && pickResultData.length > 0){
+        this.userHasPicks = true;
+      }
+    }
+
+    this.loading = false;
   }
 
   matchupOptions(matchup: any): string[]{
     return [matchup.away_team, matchup.home_team];
   }
 
-  onSubmit(){
-    console.log(JSON.stringify(this.form?.value));
+  async onSubmit(){
+    let picks: {pick_is_home: boolean, picker_id: number, matchup_id: string}[] = [];
+    let formResponse = this.form?.value;
+    Object.keys(formResponse).forEach((matchupId) => {
+      picks.push({picker_id: this.userId!, matchup_id: matchupId, pick_is_home: formResponse[matchupId] })
+    });
+    const {data, error} = await this.supabase.from('pick').insert(picks).select();
+    if(error){
+      this.messageService.add({detail: error.details, severity: "error"});
+    }else{
+      this.messageService.add({detail: "Picks submitted.", severity: "success"})
+    }
+    this.router.navigate(["/"]);
   }
 
   ngOnInit() {
