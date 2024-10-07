@@ -6,6 +6,7 @@ select
     p.picker_id as picker_id,
     m.week as week,
     m.year as year,
+    m.id as matchup_id,
     away_team.name as away_team,
     home_team.name as home_team,
     p.pick_is_home as pick_is_home,

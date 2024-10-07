@@ -33,6 +33,10 @@ export class AppComponent {
       command: () => this.router.navigate(["/make-picks"])
     },
     {
+      label: 'View Picks',
+      command: () => this.router.navigate(["/view-picks"]) 
+    },
+    {
       label: 'Log Out',
       command: () => {
         this.supabase.auth.signOut();
