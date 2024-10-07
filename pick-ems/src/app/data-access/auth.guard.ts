@@ -6,5 +6,9 @@ export async function redirectToLogin(route: ActivatedRouteSnapshot, state: Rout
     const supabase = inject(SupabaseClient);
     const router = inject(Router);
     const user = (await supabase.auth.getUser()).data.user;
-    return (!!user) || router.parseUrl('/login');
+    if(user){
+        return true;
+    }
+    router.navigate(['/login'], {queryParams: {returnUrl: state.url}});
+    return false;
 }
