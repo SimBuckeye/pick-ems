@@ -2,6 +2,7 @@ import { Component, computed, effect, inject, OnInit, Signal, signal, WritableSi
 import { FormsModule } from '@angular/forms';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { json } from 'express';
+import { MessageService } from 'primeng/api';
 import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
 
@@ -34,11 +35,13 @@ import { TableModule } from 'primeng/table';
                 <tr>
                     <td pFrozenColumn>{{ pick.picker }}</td>
                     @for(game of games; track game){
-                        <td>{{pick[game]}}</td>
+                        <td [className]="(pick[game].isBold ? 'font-bold' : '') + (pick[game].isLoss ? ' line-through' : '')">{{pick[game].text}}</td>
                     }
                 </tr>
             </ng-template>
         </p-table>
+    } @else {
+        <h4>No picks available for this week</h4>
     }
   `,
     styles: `
@@ -47,19 +50,54 @@ import { TableModule } from 'primeng/table';
 })
 export default class ViewPicksPageComponent implements OnInit {
     private readonly supabase: SupabaseClient = inject(SupabaseClient);
-    years = ["2024"];
-    weeks = ["1", "2", "3", "4", "5", "6"];
-    selectedYear = signal("2024");
-    selectedWeek: Signal<string | null> = signal("6");
-    picks: WritableSignal<any[]> = signal([]);
+    private readonly messageService = inject(MessageService);
+    years: string[] = [];
+    weeks: string[] = [];
+    selectedYear: WritableSignal<string | null> = signal(null);
+    selectedWeek: WritableSignal<string | null> = signal(null);
+    picks: WritableSignal<any[] | null> = signal(null);
     games: string[] = [];
     Object = Object;
     JSon = JSON;
+    rounds: Record<string, string[]> = {};
+    currentRoundYear: string | null = null;
+    currentRoundWeek: string | null = null;
+    currentRoundAvailable: boolean = false;
 
     private async onLoad() {
+        let { data, error } = await this.supabase.from('v_round').select("*");
+        let { data: currentRoundData, error: currentRoundError } = await this.supabase.from('current_round').select('*');
+
+        if(!error && data){
+            this.rounds = data.reduce((prev, round) => ({
+                ...prev,
+                [round.year]: round.weeks
+            }), {});
+            this.years = Object.keys(this.rounds);
+            const lastYear = this.years[this.years.length - 1];
+            this.selectedYear.set(lastYear);
+            this.weeks = this.rounds[lastYear];
+            const lastWeek = this.weeks[this.weeks.length - 1];
+            this.selectedWeek.set(lastWeek);
+        }
+
+
+        if (currentRoundError) {
+            this.messageService.add({ detail: "Error retrieving details on the current round: " + currentRoundError.details, severity: "error" });
+        } else if (currentRoundData && currentRoundData.length > 0) {
+            const currentRound = currentRoundData[0];
+            const picksLockAt = new Date(currentRound.picks_lock_at);
+            this.currentRoundYear = currentRound.year as string; // Note: these are being treated as numbers even though I'm casting here ?? so below I use == instead of ===
+            this.currentRoundWeek = currentRound.week as string;
+            this.currentRoundAvailable = (new Date() >= picksLockAt);
+        }
     }
 
     private async loadPicks(selectedYear: string, selectedWeek: string){
+        if(this.selectedYear() == this.currentRoundYear && this.selectedWeek() == this.currentRoundWeek && !this.currentRoundAvailable){
+            this.picks.set(null);
+            return;
+        }
         let {data, error} = await this.supabase.from('v_pick_result').select("*").eq('year', selectedYear).eq('week', selectedWeek);
         this.games = [];
         if(!error && data){
@@ -71,10 +109,10 @@ export default class ViewPicksPageComponent implements OnInit {
                     this.games.push(gameName);
                 }
                 if(idx > -1){
-                    picks[idx][gameName] = pick.pick_is_home ? pick.home_team : pick.away_team;
+                    picks[idx][gameName] = {text: (pick.pick_is_home ? pick.home_team : pick.away_team), isBold: pick.is_win, isLoss: pick.is_win === false};
                 }else{
                     let newPick: any = {picker: pick.picker};
-                    newPick[gameName] = pick.pick_is_home ? pick.home_team : pick.away_team;
+                    newPick[gameName] = { text: (pick.pick_is_home ? pick.home_team : pick.away_team), isBold: pick.is_win, isLoss: pick.is_win === false };
                     picks.push(newPick);
                 }
             })
@@ -96,6 +134,16 @@ export default class ViewPicksPageComponent implements OnInit {
                 }
             },
             {allowSignalWrites: true}
+        )
+        effect(
+            () => {
+                const selectedYear = this.selectedYear();
+                if (selectedYear) {
+                    this.weeks = this.rounds[selectedYear];
+                    this.selectedWeek.set(this.weeks[this.weeks.length - 1]);
+                }
+            },
+            { allowSignalWrites: true }
         )
     }
 }
