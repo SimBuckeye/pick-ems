@@ -1,11 +1,12 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, effect, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { SupabaseClient } from '@supabase/supabase-js';
+import { SupabaseClient, User } from '@supabase/supabase-js';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { SelectButtonModule } from 'primeng/selectbutton';
+import { AuthService } from '../../data-access/auth.service';
 
 @Component({
   selector: 'app-make-picks-page',
@@ -56,6 +57,7 @@ export default class MakePicksPageComponent implements OnInit {
   private readonly supabase: SupabaseClient = inject(SupabaseClient);
   private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
+  private readonly authService = inject(AuthService);
 
   currentRound: any;
   picksLockAt: Date | undefined;
@@ -64,11 +66,11 @@ export default class MakePicksPageComponent implements OnInit {
   userId: number | undefined;
   JSON = JSON;
   form: FormGroup | undefined;
-  user: any;
   userHasPicks: boolean = false;
   loading: boolean = true;
+  user = this.authService.user;
 
-  private async onLoad() {
+  private async onLoad(user: User) {
     let { data, error } = await this.supabase.from('current_round').select('*');
     if(error){
       this.messageService.add({detail: "Error retrieving details on the current round: " + error.details, severity: "error"});
@@ -92,7 +94,7 @@ export default class MakePicksPageComponent implements OnInit {
       this.form = new FormGroup(group);
     }
 
-    const uuid = (await this.supabase.auth.getUser()).data.user?.id;
+    const uuid = user.id;
     if(uuid){
       let {data: userData, error: userError} = await this.supabase.from("auth_user").select("*").eq('uuid', uuid);
       if(userError){
@@ -136,6 +138,14 @@ export default class MakePicksPageComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.onLoad();
+  }
+
+  constructor(){
+    effect(() =>{
+      const user = this.user();
+      if (user) {
+        this.onLoad(user);
+      }
+    })
   }
 }

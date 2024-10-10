@@ -17,11 +17,11 @@ export const routes: Routes = [
     {
         path: 'make-picks',
         loadComponent: () => import('./feature/make-picks-page/make-picks-page.component'),
-        canActivate: [redirectToLogin]
+        canActivate: [redirectToLogin()]
     },
     {
         path: 'view-picks',
         loadComponent: () => import('./feature/view-picks-page/view-picks-page.component'),
-        canActivate: [redirectToLogin]
+        canActivate: [redirectToLogin()]
     }
 ];
