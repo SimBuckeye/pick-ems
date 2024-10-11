@@ -33,9 +33,13 @@ import { TableModule } from 'primeng/table';
             </ng-template>
             <ng-template pTemplate="body" let-pick>
                 <tr>
-                    <td pFrozenColumn>{{ pick.picker }}</td>
+                    <td pFrozenColumn [style]="
+                            'color: ' + pick.pickerTextColor + '; background: ' + pick.pickerBackgroundColor + ';'" >{{ pick.picker }}</td>
                     @for(game of games; track game){
-                        <td [className]="(pick[game].isBold ? 'font-bold' : '') + (pick[game].isLoss ? ' line-through' : '')">{{pick[game].text}}</td>
+                        <td [className]="
+                            (pick[game].isBold ? 'font-bold' : '') + 
+                            (pick[game].isLoss ? ' line-through' : '')"
+                            >{{pick[game].text}}</td>
                     }
                 </tr>
             </ng-template>
@@ -109,10 +113,17 @@ export default class ViewPicksPageComponent implements OnInit {
                     this.games.push(gameName);
                 }
                 if(idx > -1){
-                    picks[idx][gameName] = {text: (pick.pick_is_home ? pick.home_team : pick.away_team), isBold: pick.is_win, isLoss: pick.is_win === false};
+                    picks[idx][gameName] = {
+                        text: (pick.pick_is_home ? pick.home_team : pick.away_team), 
+                        isBold: pick.is_win, isLoss: pick.is_win === false };
                 }else{
-                    let newPick: any = {picker: pick.picker};
-                    newPick[gameName] = { text: (pick.pick_is_home ? pick.home_team : pick.away_team), isBold: pick.is_win, isLoss: pick.is_win === false };
+                    let newPick: any = {
+                        picker: pick.picker,
+                        pickerTextColor: pick.picker_text_color,
+                        pickerBackgroundColor: pick.picker_background_color };
+                    newPick[gameName] = {
+                        text: (pick.pick_is_home ? pick.home_team : pick.away_team), 
+                        isBold: pick.is_win, isLoss: pick.is_win === false };
                     picks.push(newPick);
                 }
             })
