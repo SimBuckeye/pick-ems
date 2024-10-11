@@ -3,6 +3,8 @@ drop view if exists v_standings;
 create or replace view v_standings as
 select
     nickname,
+    picker_text_color,
+    picker_background_color,
     year,
     b1g_wins,
     b1g_losses,
@@ -14,6 +16,8 @@ from
 (
     select
         u.nickname as nickname,
+        u.text_color as picker_text_color,
+        u.background_color as picker_background_color,
         pr.year as year,
         count(*) filter ( where
             pr.is_win
