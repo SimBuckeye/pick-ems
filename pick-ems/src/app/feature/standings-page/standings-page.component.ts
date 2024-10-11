@@ -19,7 +19,7 @@ import { TableModule } from 'primeng/table';
       </ng-template>
       <ng-template pTemplate="body" let-standing>
         <tr>
-          <td>{{ standing.nickname }}</td>
+          <td [style]="'color: ' + standing.picker_text_color + '; background: ' + standing.picker_background_color + ';'">{{ standing.nickname }}</td>
           <td>{{ standing.b1g_wins}}-{{standing.b1g_losses}}</td>
           <td>{{ standing.b1g_percentage.toPrecision(3) }}</td>
           <td>{{ standing.total_wins}}-{{standing.total_losses}}</td>

@@ -3,6 +3,8 @@ drop view if exists v_pick_result;
 create or replace view v_pick_result as
 select
     u.nickname as picker,
+    u.text_color as picker_text_color,
+    u.background_color as picker_background_color,
     p.picker_id as picker_id,
     m.week as week,
     m.year as year,
