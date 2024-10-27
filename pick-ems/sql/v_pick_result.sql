@@ -6,6 +6,7 @@ select
     u.text_color as picker_text_color,
     u.background_color as picker_background_color,
     p.picker_id as picker_id,
+    p.pick_text as pick_text,
     m.week as week,
     m.year as year,
     m.id as matchup_id,
