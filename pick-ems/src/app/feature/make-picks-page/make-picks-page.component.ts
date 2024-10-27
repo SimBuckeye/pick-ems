@@ -1,5 +1,5 @@
 import { Component, effect, inject, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { SupabaseClient, User } from '@supabase/supabase-js';
 import { MessageService } from 'primeng/api';
@@ -7,11 +7,12 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { AuthService } from '../../data-access/auth.service';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-make-picks-page',
   standalone: true,
-  imports: [CardModule, SelectButtonModule, ReactiveFormsModule, ButtonModule],
+  imports: [CardModule, SelectButtonModule, ReactiveFormsModule, ButtonModule, InputTextModule],
   template: `
     @if(loading){
       <h2>loading...</h2>
@@ -33,6 +34,7 @@ import { AuthService } from '../../data-access/auth.service';
           >
             @for(matchup of matchups; track matchup.id){
               <p-card [header]="matchup.away_team_name + ' @ ' + matchup.home_team_name">
+                <input type="text" pInputText class="w-full mb-2" [formControlName]="'text_'+matchup.id" />
                 <p-selectButton [options]="[{label: matchup.away_team_name || 'Away', value: false}, {label: matchup.home_team_name || 'Home', value: true}]" [formControlName]="matchup.id"/>
               </p-card>
             }
@@ -89,7 +91,8 @@ export default class MakePicksPageComponent implements OnInit {
       this.matchups = matchupsData;
       const group: any = {};
       this.matchups.forEach((matchup: any) => {
-        group[matchup.id] = new FormControl('', Validators.required)
+        group[matchup.id] = new FormControl('', Validators.required);
+        group['text_'+matchup.id] = new FormControl('');
       });
       this.form = new FormGroup(group);
     }
@@ -123,10 +126,13 @@ export default class MakePicksPageComponent implements OnInit {
   }
 
   async onSubmit(){
-    let picks: {pick_is_home: boolean, picker_id: number, matchup_id: string}[] = [];
+    let picks: {pick_is_home: boolean, picker_id: number, matchup_id: string, pick_text: string}[] = [];
     let formResponse = this.form?.value;
     Object.keys(formResponse).forEach((matchupId) => {
-      picks.push({picker_id: this.userId!, matchup_id: matchupId, pick_is_home: formResponse[matchupId] })
+      if(matchupId.includes('text')){
+        return;
+      }
+      picks.push({picker_id: this.userId!, matchup_id: matchupId, pick_is_home: formResponse[matchupId], pick_text: formResponse['text_'+matchupId] })
     });
     const {data, error} = await this.supabase.from('pick').insert(picks).select();
     if(error){
