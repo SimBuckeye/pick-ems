@@ -35,10 +35,12 @@ import { InputTextModule } from 'primeng/inputtext';
             @for(matchup of matchups; track matchup.id){
               <p-card [header]="matchup.away_team_name + ' @ ' + matchup.home_team_name">
                 <input type="text" pInputText class="w-full mb-2" [formControlName]="'text_'+matchup.id" />
+                @if(form.get('text_'+matchup.id)?.errors?.['maxlength']){
+                  <div class="mb-2 text-red-500">Text must be 100 characters or less.</div>
+                }
                 <p-selectButton [options]="[{label: matchup.away_team_name || 'Away', value: false}, {label: matchup.home_team_name || 'Home', value: true}]" [formControlName]="matchup.id"/>
               </p-card>
             }
-
             <!-- Log In Button -->
             <p-button
             styleClass="w-full"
@@ -92,7 +94,7 @@ export default class MakePicksPageComponent implements OnInit {
       const group: any = {};
       this.matchups.forEach((matchup: any) => {
         group[matchup.id] = new FormControl('', Validators.required);
-        group['text_'+matchup.id] = new FormControl('');
+        group['text_'+matchup.id] = new FormControl('', Validators.maxLength(100));
       });
       this.form = new FormGroup(group);
     }
