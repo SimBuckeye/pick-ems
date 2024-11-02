@@ -1,6 +1,11 @@
-create or replace view v_round as
-select distinct
-    week,
-    year
-from matchup
-order by year desc, week asc
+CREATE OR REPLACE VIEW
+  public.v_round AS
+SELECT
+  array_agg(DISTINCT week) AS weeks,
+  YEAR
+FROM
+  matchup
+GROUP BY
+  YEAR
+ORDER BY
+  YEAR DESC;

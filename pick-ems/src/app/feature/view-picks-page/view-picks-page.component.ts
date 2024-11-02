@@ -114,7 +114,7 @@ export default class ViewPicksPageComponent implements OnInit {
                 }
                 if(idx > -1){
                     picks[idx][gameName] = {
-                        text: (pick.pick_is_home ? pick.home_team : pick.away_team), 
+                        text: pick.pick_text || (pick.pick_is_home ? pick.home_team : pick.away_team), 
                         isBold: pick.is_win, isLoss: pick.is_win === false };
                 }else{
                     let newPick: any = {
@@ -122,7 +122,7 @@ export default class ViewPicksPageComponent implements OnInit {
                         pickerTextColor: pick.picker_text_color,
                         pickerBackgroundColor: pick.picker_background_color };
                     newPick[gameName] = {
-                        text: (pick.pick_is_home ? pick.home_team : pick.away_team), 
+                        text: pick.pick_text || (pick.pick_is_home ? pick.home_team : pick.away_team), 
                         isBold: pick.is_win, isLoss: pick.is_win === false };
                     picks.push(newPick);
                 }
