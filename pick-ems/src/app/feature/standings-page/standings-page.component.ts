@@ -3,7 +3,7 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import { TableModule } from 'primeng/table';
 
 @Component({
-  selector: 'app-standings-page',
+  selector: 'pickems-standings-page',
   standalone: true,
   imports: [TableModule],
   template: `

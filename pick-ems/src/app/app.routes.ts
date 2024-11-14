@@ -23,5 +23,10 @@ export const routes: Routes = [
         path: 'view-picks',
         loadComponent: () => import('./feature/view-picks-page/view-picks-page.component'),
         canActivate: [redirectToLogin()]
+    },
+    {
+        path: 'bowl-draft',
+        loadComponent: () => import('./feature/bowl-draft-page/bowl-draft-page.component'),
+        canActivate: [redirectToLogin()]
     }
 ];

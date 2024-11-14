@@ -5,7 +5,7 @@ import { MenubarModule } from 'primeng/menubar';
 import { ToastModule } from 'primeng/toast';
 
 @Component({
-  selector: 'app-root',
+  selector: 'pickems-root',
   standalone: true,
   imports: [RouterOutlet, ToastModule, MenubarModule],
   template: `

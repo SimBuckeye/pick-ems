@@ -7,7 +7,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
 
 @Component({
-    selector: 'app-view-picks-page',
+    selector: 'pickems-view-picks-page',
     standalone: true,
     imports: [FormsModule, TableModule, DropdownModule],
     template: `

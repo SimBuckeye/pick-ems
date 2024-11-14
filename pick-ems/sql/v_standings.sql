@@ -22,17 +22,20 @@ from
         count(*) filter ( where
             pr.is_win
             and pr.is_b1g
+            and not pr.is_postseason
         ) as b1g_wins,
         count(*) filter (where
             not pr.is_win
-            and
-            pr.is_b1g
+            and pr.is_b1g
+            and not pr.is_postseason
         ) as b1g_losses,
         count(*) filter (where
             pr.is_win
+            and not pr.is_postseason
         ) as total_wins,
         count(*) filter (where
             not pr.is_win
+            and not pr.is_postseason
         ) as total_losses
     from
         auth_user as u

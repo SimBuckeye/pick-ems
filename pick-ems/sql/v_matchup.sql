@@ -7,7 +7,10 @@ select
     m.winner_is_home as winner_is_home,
     m.week as week,
     m.year as year,
-    m.id as id
+    m.id as id,
+    m.is_postseason as is_postseason,
+    m.is_postseason and (away_team.is_b1g or home_team.is_b1g) as is_b1g_postseason,
+    m.matchup_title as matchup_title
 from
     matchup as m
     left join team as away_team on m.away_team_id = away_team.id

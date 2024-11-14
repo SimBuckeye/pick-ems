@@ -14,6 +14,7 @@ select
     home_team.name as home_team,
     p.pick_is_home as pick_is_home,
     away_team.is_b1g and home_team.is_b1g as is_b1g,
+    m.is_postseason as is_postseason,
     case
         when m.winner_is_home is null then null
     else
