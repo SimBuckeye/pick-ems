@@ -1,6 +1,7 @@
 import { inject, Injectable, Signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { SupabaseClient, User } from "@supabase/supabase-js";
+import { MessageService } from "primeng/api";
 import { concat, distinctUntilChanged, from, map, Observable, shareReplay } from "rxjs";
 
 @Injectable({
@@ -8,6 +9,7 @@ import { concat, distinctUntilChanged, from, map, Observable, shareReplay } from
 })
 export class AuthService {
     private readonly supabase: SupabaseClient = inject(SupabaseClient);
+    private readonly messageService = inject(MessageService);
 
     readonly user$: Observable<User | undefined> = concat(
         from(this.supabase.auth.getSession()).pipe(
@@ -24,4 +26,16 @@ export class AuthService {
     );
 
     readonly user: Signal<User | undefined> = toSignal(this.user$);
+
+    async pickerId(userId: string): Promise<number | null>{
+
+        const { data: userData, error: userError } = await this.supabase.from("auth_user").select("*").eq('uuid', userId);
+        if (userError) {
+            this.messageService.add({ detail: "Error retrieving details on the logged-in user: " + userError?.details, severity: "error" });
+        }
+        if (userData && userData.length === 1) {
+            return userData[0].id;
+        }
+        return null;
+    }
 }

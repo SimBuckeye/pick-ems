@@ -8,6 +8,7 @@ import { CardModule } from 'primeng/card';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { AuthService } from '../../data-access/auth.service';
 import { InputTextModule } from 'primeng/inputtext';
+import { StandingsService } from '../../data-access/standings.service';
 
 @Component({
   selector: 'pickems-bowl-draft-page',
@@ -18,6 +19,8 @@ import { InputTextModule } from 'primeng/inputtext';
       <h2>loading...</h2>
     }@else if(!userId){
       <h2>Current user not found. Try logging out and back in.</h2>
+    }@else if(userId !== onTheClockUser?.picker_id){
+      <h4>{{onTheClockUser?.nickname}} is on the clock!</h4>
     }@else {
       <h4>You are on the clock! Please select one of the options below.</h4>
 
@@ -55,6 +58,7 @@ export default class BowlDraftPageComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
   private readonly authService = inject(AuthService);
+  private readonly standingsService = inject(StandingsService);
 
   matchups: any[] = [];
   userId: number | undefined;
@@ -63,6 +67,7 @@ export default class BowlDraftPageComponent implements OnInit {
   loading: boolean = true;
   user = this.authService.user;
   pickedMatchups: number[] = [];
+  onTheClockUser: any | null = null;
 
   private async onLoad(user: User) {
     let {data: picksData, error: picksError} = await this.supabase.from('v_pick_result').select("*").eq('is_postseason', true);
@@ -88,14 +93,10 @@ export default class BowlDraftPageComponent implements OnInit {
 
     const uuid = user.id;
     if(uuid){
-      let {data: userData, error: userError} = await this.supabase.from("auth_user").select("*").eq('uuid', uuid);
-      if(userError){
-        this.messageService.add({ detail: "Error retrieving details on the logged-in user: " + userError?.details, severity: "error"});
-      }
-      if(userData && userData.length === 1){
-        this.userId = userData[0].id;
-      }
+      this.userId = await this.authService.pickerId(uuid) ?? undefined;
     }
+
+    this.onTheClockUser = await this.standingsService.onTheClock();
 
     this.loading = false;
   }
@@ -112,7 +113,7 @@ export default class BowlDraftPageComponent implements OnInit {
     }else{
       this.messageService.add({detail: "Pick drafted.", severity: "success"});
     }
-    this.router.navigate(["/"]);
+    this.router.navigate(["/draft-central"]);
   }
 
   ngOnInit() {

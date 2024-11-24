@@ -26,7 +26,12 @@ export const routes: Routes = [
     },
     {
         path: 'bowl-draft',
-        loadComponent: () => import('./feature/bowl-draft-page/bowl-draft-page.component'),
+        loadComponent: () => import('./feature/bowl-draft/bowl-draft-page.component'),
+        canActivate: [redirectToLogin()]
+    },
+    {
+        path: 'draft-central',
+        loadComponent: () => import('./feature/bowl-draft/draft-central-page.component'),
         canActivate: [redirectToLogin()]
     }
 ];

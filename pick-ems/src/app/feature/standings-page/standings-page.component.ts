@@ -1,6 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { TableModule } from 'primeng/table';
+import { StandingsService } from '../../data-access/standings.service';
 
 @Component({
   selector: 'pickems-standings-page',
@@ -34,13 +35,12 @@ import { TableModule } from 'primeng/table';
 })
 export default class StandingsPageComponent implements OnInit {
   private readonly supabase: SupabaseClient = inject(SupabaseClient);
+  private readonly standingsService = inject(StandingsService);
+
   standings: any;
 
   private async onLoad(){
-    let { data, error } = await this.supabase.from('v_standings').select('*');
-    if(!error){
-      this.standings = data;
-    }
+    this.standings = await this.standingsService.standings();
   }
 
   ngOnInit(){
