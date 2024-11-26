@@ -12,7 +12,7 @@ export class StandingsService {
     async onTheClock(): Promise<any | null>{
         const data = await this.draftOrder();
         if(data.length > 0){
-            return data[2];
+            return data[0];
         }
         return null;
     }

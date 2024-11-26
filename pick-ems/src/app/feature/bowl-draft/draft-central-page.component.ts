@@ -64,7 +64,7 @@ export default class DraftCentralPageComponent implements OnInit {
         this.draftOrder = await this.standingsService.draftOrder();
         if(this.draftOrder.length > 0){
             const pickerId = await this.authService.pickerId(userId);
-            this.onTheClockUser = this.draftOrder[2];
+            this.onTheClockUser = this.draftOrder[0];
             this.userIsOnTheClock = this.onTheClockUser.picker_id === pickerId;
         }
         this.draftPicks = await this.standingsService.draftPicks();

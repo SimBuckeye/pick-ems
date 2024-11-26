@@ -1,11 +1,13 @@
-CREATE OR REPLACE VIEW
-  public.v_round AS
-SELECT
-  array_agg(DISTINCT week) AS weeks,
-  YEAR
-FROM
+create or replace view
+  v_round as
+select
+  array_agg(distinct week) as weeks,
+  year
+from
   matchup
-GROUP BY
-  YEAR
-ORDER BY
-  YEAR DESC;
+where 
+  week is not null
+group by
+  year
+order by
+  year DESC;
