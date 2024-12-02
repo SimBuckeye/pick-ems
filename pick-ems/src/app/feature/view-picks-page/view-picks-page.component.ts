@@ -94,7 +94,6 @@ export default class ViewPicksPageComponent implements OnInit {
                     names.push(round.name);
                     this.roundsMap.set(round.year, names);
                 } else {
-                    console.log("setting round: " + round.year + ", " + round.name);
                     this.roundsMap.set(round.year, [round.name]);
                 }
             }
@@ -109,7 +108,7 @@ export default class ViewPicksPageComponent implements OnInit {
             const currentRound = currentRoundData[0];
             const picksLockAt = new Date(currentRound.picks_lock_at);
             this.currentRoundYear = currentRound.year as string; // Note: these are being treated as numbers even though I'm casting here ?? so below I use == instead of ===
-            this.currentRoundWeek = currentRound.week as string;
+            this.currentRoundWeek = currentRound.week_name as string;
             this.selectedYear.set(this.years.find((year) => year == this.currentRoundYear)!);
             this.currentRoundAvailable = (new Date() >= picksLockAt);
         }
@@ -131,7 +130,7 @@ export default class ViewPicksPageComponent implements OnInit {
                     return;
                 }
                 const idx = picks.findIndex((existingPick) => pick.picker === existingPick.picker);
-                const gameName = pick.away_team + " @ " + pick.home_team;
+                const gameName = pick.matchup_title || pick.away_team + " @ " + pick.home_team;
                 if(this.games.findIndex((game) => game === gameName) === -1){
                     this.games.push(gameName);
                 }
