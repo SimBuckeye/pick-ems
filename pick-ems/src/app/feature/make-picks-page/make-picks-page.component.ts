@@ -33,7 +33,7 @@ import { InputTextModule } from 'primeng/inputtext';
               class="w-full max-w-30rem flex flex-column gap-3 px-3"
           >
             @for(matchup of matchups; track matchup.id){
-              <p-card [header]="matchup.matchup_title || matchup.away_team_name + ' @ ' + matchup.home_team_name">
+              <p-card [header]="matchup.matchup_title || (matchup.away_team_name + ' @ ' + matchup.home_team_name)">
                 <input type="text" pInputText class="w-full mb-2" [formControlName]="'text_'+matchup.id" />
                 @if(form.get('text_'+matchup.id)?.errors?.['maxlength']){
                   <div class="mb-2 text-red-500">Text must be 100 characters or less.</div>
