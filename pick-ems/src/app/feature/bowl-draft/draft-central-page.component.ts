@@ -7,6 +7,8 @@ import { SelectButtonModule } from "primeng/selectbutton";
 import { StandingsService } from "../../data-access/standings.service";
 import { AuthService } from "../../data-access/auth.service";
 import { Router } from '@angular/router';
+import { MessageService } from "primeng/api";
+import { SupabaseClient } from "@supabase/supabase-js";
 
 @Component({
     selector: 'pickems-draft-central-page',
@@ -19,8 +21,8 @@ import { Router } from '@angular/router';
         <div class="flex flex-column pt-2 gap-2">
             <p-card header="On the Clock">
                 <h2 [style]="'margin: 0; color: ' + onTheClockUser.picker_text_color + '; background: ' + onTheClockUser.picker_background_color + ';'">{{onTheClockUser?.nickname}}</h2>
-                @if(userIsOnTheClock){
-                    <p-button styleClass="mt-2" (onClick)="onGoToDraft()">On the clock :o</p-button>
+                @if(userIsOnTheClock && draftOpen){
+                    <p-button styleClass="mt-2" (onClick)="onGoToDraft()">Go to draft</p-button>
                 }
             </p-card>
             <p-card header="Draft Order">
@@ -48,6 +50,8 @@ import { Router } from '@angular/router';
 export default class DraftCentralPageComponent implements OnInit {
     private standingsService = inject(StandingsService);
     private authService = inject(AuthService);
+    private messageService = inject(MessageService);
+    private supabase = inject(SupabaseClient);
     private readonly router = inject(Router);
     
     onTheClockUser: any | null = null;
@@ -55,6 +59,7 @@ export default class DraftCentralPageComponent implements OnInit {
     draftOrder: any[] = [];
     draftPicks: any[] = [];
     loading = true;
+    draftOpen = false;
 
     onGoToDraft(){
         this.router.navigate(["/bowl-draft"]);
@@ -68,6 +73,17 @@ export default class DraftCentralPageComponent implements OnInit {
             this.userIsOnTheClock = this.onTheClockUser.picker_id === pickerId;
         }
         this.draftPicks = await this.standingsService.draftPicks();
+
+
+        let { data: roundData, error: roundError } = await this.supabase.from('round').select("*").eq("state", 'accepting_picks');
+        if (roundError) {
+            this.messageService.add({ detail: "Error retrieving the list of rounds: " + roundError.details, severity: "error" });
+            return;
+        } else if (roundData && roundData.length > 0) {
+            const round = roundData[0];
+            this.draftOpen = round.name === 'Bowls' && round.state === 'accepting_picks';
+        }
+
         this.loading = false;
     }
 

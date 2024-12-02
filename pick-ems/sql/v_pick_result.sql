@@ -19,6 +19,7 @@ select
     p.created_at as created_at,
     m.matchup_title,
     p.id as pick_id,
+    m.round as round,
     case
         when m.winner_is_home is null then null
     else

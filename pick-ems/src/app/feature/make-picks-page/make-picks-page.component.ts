@@ -16,14 +16,14 @@ import { InputTextModule } from 'primeng/inputtext';
   template: `
     @if(loading){
       <h2>loading...</h2>
-    }@else if(picksAreLocked){
-      <h2>Picks are currently locked</h2>
+    }@else if(!round){
+      <h2>Not currently accepting picks.</h2>
     }@else if(!userId){
       <h2>Current user not found. Try logging out and back in.</h2>
     }@else if(userHasPicks){
       <h2>You have already submitted picks for the current round.</h2>
     }@else {
-      <h4>Picks now available for week {{currentRound.week}}. Picks lock at {{picksLockAt}}.</h4>
+      <h4>Picks now available for week {{round.name}}.</h4>
 
       @if(form){
       <div class="h-full flex flex-column align-items-center">
@@ -33,7 +33,7 @@ import { InputTextModule } from 'primeng/inputtext';
               class="w-full max-w-30rem flex flex-column gap-3 px-3"
           >
             @for(matchup of matchups; track matchup.id){
-              <p-card [header]="matchup.away_team_name + ' @ ' + matchup.home_team_name">
+              <p-card [header]="matchup.matchup_title || matchup.away_team_name + ' @ ' + matchup.home_team_name">
                 <input type="text" pInputText class="w-full mb-2" [formControlName]="'text_'+matchup.id" />
                 @if(form.get('text_'+matchup.id)?.errors?.['maxlength']){
                   <div class="mb-2 text-red-500">Text must be 100 characters or less.</div>
@@ -63,9 +63,7 @@ export default class MakePicksPageComponent implements OnInit {
   private readonly messageService = inject(MessageService);
   private readonly authService = inject(AuthService);
 
-  currentRound: any;
-  picksLockAt: Date | undefined;
-  picksAreLocked: boolean = true;
+  round: any;
   matchups: any;
   userId: number | undefined;
   JSON = JSON;
@@ -75,20 +73,18 @@ export default class MakePicksPageComponent implements OnInit {
   user = this.authService.user;
 
   private async onLoad(user: User) {
-    let { data, error } = await this.supabase.from('current_round').select('*');
-    if(error){
-      this.messageService.add({detail: "Error retrieving details on the current round: " + error.details, severity: "error"});
-    }else if (data && data.length > 0) {
-      this.currentRound = data[0];
-      this.picksLockAt = new Date(this.currentRound.picks_lock_at);
-      if(new Date() < this.picksLockAt){
-        this.picksAreLocked = false;
-      }
+
+    let {data: roundData, error: roundError} = await this.supabase.from('round').select("*").eq("state", 'accepting_picks');
+    if(roundError){
+      this.messageService.add({detail: "Error retrieving the list of rounds: " + roundError.details, severity: "error"});
+      return;
+    }else if(roundData && roundData.length > 0){
+      this.round = roundData[0];
     }
 
-    let {data: matchupsData, error: matchupsError} = await this.supabase.from('v_matchup').select("*").eq('week',this.currentRound.week);
+    let {data: matchupsData, error: matchupsError} = await this.supabase.from('v_matchup').select("*").eq('round',this.round.id);
     if(matchupsError){
-      this.messageService.add({detail: "Error retrieving details on the current matchups: " + error?.details, severity: "error"});
+      this.messageService.add({ detail: "Error retrieving details on the current matchups: " + matchupsError?.details, severity: "error"});
     } else {
       this.matchups = matchupsData;
       const group: any = {};
@@ -103,17 +99,18 @@ export default class MakePicksPageComponent implements OnInit {
     if(uuid){
       let {data: userData, error: userError} = await this.supabase.from("auth_user").select("*").eq('uuid', uuid);
       if(userError){
-        this.messageService.add({detail: "Error retrieving details on the logged-in user: " + error?.details, severity: "error"});
+        this.messageService.add({ detail: "Error retrieving details on the logged-in user: " + userError?.details, severity: "error"});
       }
       if(userData && userData.length === 1){
         this.userId = userData[0].id;
       }
     }
 
-    if(this.userId){
-      let {data: pickResultData, error: pickResultError} = await this.supabase.from("v_pick_result").select("*").eq('picker_id', this.userId).eq('week', this.currentRound.week).eq('year', this.currentRound.year);
+    if(this.userId && this.round){
+      let {data: pickResultData, error: pickResultError} = await this.supabase.from("v_pick_result").select("*").eq('picker_id', this.userId).eq('round', this.round.id);
       if(pickResultError){
-        this.messageService.add({detail: "Error retrieving the list of picks: " + error?.details, severity: "error"});
+        this.messageService.add({ detail: "Error retrieving the list of picks: " + pickResultError?.details, severity: "error"});
+        this.userHasPicks = true;
       }
       if(pickResultData && pickResultData.length > 0){
         this.userHasPicks = true;

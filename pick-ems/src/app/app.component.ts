@@ -37,6 +37,10 @@ export class AppComponent {
       command: () => this.router.navigate(["/view-picks"]) 
     },
     {
+      label: 'Draft Central',
+      command: () => this.router.navigate(["/draft-central"])
+    },
+    {
       label: 'Log Out',
       command: () => {
         this.supabase.auth.signOut();

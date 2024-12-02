@@ -19,7 +19,13 @@ select
         when total_wins > 0 or total_losses > 0 then total_wins::real / (total_wins + total_losses)::real
         else 0
     end as total_percentage,
-    postseason_picks
+    postseason_picks,
+    postseason_wins,
+    postseason_losses,
+    case
+        when postseason_wins > 0 or postseason_losses > 0 then postseason_wins::real / (postseason_wins + postseason_losses)::real
+        else 0
+    end as postseason_percentage
 from
 (
     select
@@ -49,7 +55,15 @@ from
         count(*) filter (where
             pr.is_postseason
             and not pr.is_b1g_postseason
-        ) as postseason_picks
+        ) as postseason_picks,
+        count(*) filter (where
+            pr.is_postseason
+            and pr.is_win
+        ) as postseason_wins,
+        count(*) filter (where
+            pr.is_postseason
+            and not pr.is_win
+        ) as postseason_losses
     from
         auth_user as u
         left join v_pick_result as pr on u.id = pr.picker_id
