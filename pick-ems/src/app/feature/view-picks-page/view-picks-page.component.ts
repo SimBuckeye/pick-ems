@@ -3,13 +3,14 @@ import { FormsModule } from '@angular/forms';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { json } from 'express';
 import { MessageService } from 'primeng/api';
+import { CardModule } from 'primeng/card';
 import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
 
 @Component({
-    selector: 'app-view-picks-page',
+    selector: 'pickems-view-picks-page',
     standalone: true,
-    imports: [FormsModule, TableModule, DropdownModule],
+    imports: [FormsModule, TableModule, DropdownModule, CardModule],
     template: `
     <p-dropdown 
         styleClass="mt-3 mr-3"
@@ -22,69 +23,85 @@ import { TableModule } from 'primeng/table';
         placeholder="Select a week"/>
 
     @if(picks(); as picks){
-        <p-table [value]="picks" [scrollable]="true" styleClass="mt-3">
-            <ng-template pTemplate="header">
-                <tr>
-                    <th pFrozenColumn>Picker</th>
-                    @for(game of games; track $index){
-                        <th>{{game}}</th>
-                    }
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-pick>
-                <tr>
-                    <td pFrozenColumn [style]="
-                            'color: ' + pick.pickerTextColor + '; background: ' + pick.pickerBackgroundColor + ';'" >{{ pick.picker }}</td>
-                    @for(game of games; track game){
-                        <td [className]="
-                            (pick[game].isBold ? 'font-bold' : '') + 
-                            (pick[game].isLoss ? ' line-through' : '')"
-                            >{{pick[game].text}}</td>
-                    }
-                </tr>
-            </ng-template>
-        </p-table>
+        @if(picks.length > 0){
+            <p-table [value]="picks" [scrollable]="true" styleClass="mt-3">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th pFrozenColumn>Picker</th>
+                        @for(game of games; track $index){
+                            <th>{{game}}</th>
+                        }
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-pick>
+                    <tr>
+                        <td pFrozenColumn [style]="
+                                'color: ' + pick.pickerTextColor + '; background: ' + pick.pickerBackgroundColor + ';'" >{{ pick.picker }}</td>
+                        @for(game of games; track game){
+                            <td [className]="
+                                (pick[game].isBold ? 'font-bold' : '') +
+                                (pick[game].isLoss ? ' line-through' : '')"
+                                >{{pick[game].text}}</td>
+                        }
+                    </tr>
+                </ng-template>
+            </p-table>
+        }
+        <div class="mt-2 flex flex-row flex-wrap gap-2">
+            @for(pick of soloPicks; track pick.pick_id){
+                <p-card [header]="pick.matchup_title" [style]="pick.is_win === false ? {color: 'black', background: 'gray'} : {color: pick.picker_text_color, background: pick.picker_background_color}">
+                    <div>{{pick.away_team}} vs. {{pick.home_team}}</div>
+                    <div>Picker: {{pick.picker}}</div>
+                    <div>Pick: {{pick.pick_text}} ({{pick.pick_is_home ? pick.home_team : pick.away_team}})</div>
+                </p-card>
+            }
+        </div>
     } @else {
         <h4>No picks available for this week</h4>
     }
   `,
     styles: `
-  
+        p-card{width: 49%;}
   `,
 })
 export default class ViewPicksPageComponent implements OnInit {
     private readonly supabase: SupabaseClient = inject(SupabaseClient);
     private readonly messageService = inject(MessageService);
-    years: string[] = [];
+    years: (string | number)[] = [];
     weeks: string[] = [];
-    selectedYear: WritableSignal<string | null> = signal(null);
+    roundsMap: Map<string | number, string[]> = new Map();
+    selectedYear: WritableSignal<string | number | null> = signal(null);
     selectedWeek: WritableSignal<string | null> = signal(null);
     picks: WritableSignal<any[] | null> = signal(null);
+    soloPicks: any[] = [];
     games: string[] = [];
     Object = Object;
     JSon = JSON;
-    rounds: Record<string, string[]> = {};
     currentRoundYear: string | null = null;
     currentRoundWeek: string | null = null;
     currentRoundAvailable: boolean = false;
 
     private async onLoad() {
-        let { data, error } = await this.supabase.from('v_round').select("*");
-        let { data: currentRoundData, error: currentRoundError } = await this.supabase.from('current_round').select('*');
+        let { data: roundsData, error: roundsError } = await this.supabase.from('round').select("*");
 
-        if(!error && data){
-            this.rounds = data.reduce((prev, round) => ({
-                ...prev,
-                [round.year]: round.weeks
-            }), {});
-            this.years = Object.keys(this.rounds);
-            const lastYear = this.years[this.years.length - 1];
-            this.selectedYear.set(lastYear);
-            this.weeks = this.rounds[lastYear];
-            const lastWeek = this.weeks[this.weeks.length - 1];
-            this.selectedWeek.set(lastWeek);
+        if(roundsError){
+            this.messageService.add({ detail: "Error retrieving list of rounds: " + roundsError.details, severity: "error"});
+        } else if (roundsData){
+            var round: {year: string, name: string};
+            for(round of roundsData){
+                const names = this.roundsMap.get(round.year);
+                if (names) {
+                    names.push(round.name);
+                    this.roundsMap.set(round.year, names);
+                } else {
+                    console.log("setting round: " + round.year + ", " + round.name);
+                    this.roundsMap.set(round.year, [round.name]);
+                }
+            }
+            this.years = Array.from(this.roundsMap.keys());
         }
 
+        let { data: currentRoundData, error: currentRoundError } = await this.supabase.from('current_round').select('*');
 
         if (currentRoundError) {
             this.messageService.add({ detail: "Error retrieving details on the current round: " + currentRoundError.details, severity: "error" });
@@ -93,11 +110,12 @@ export default class ViewPicksPageComponent implements OnInit {
             const picksLockAt = new Date(currentRound.picks_lock_at);
             this.currentRoundYear = currentRound.year as string; // Note: these are being treated as numbers even though I'm casting here ?? so below I use == instead of ===
             this.currentRoundWeek = currentRound.week as string;
+            this.selectedYear.set(this.years.find((year) => year == this.currentRoundYear)!);
             this.currentRoundAvailable = (new Date() >= picksLockAt);
         }
     }
 
-    private async loadPicks(selectedYear: string, selectedWeek: string){
+    private async loadPicks(selectedYear: string | number, selectedWeek: string){
         if(this.selectedYear() == this.currentRoundYear && this.selectedWeek() == this.currentRoundWeek && !this.currentRoundAvailable){
             this.picks.set(null);
             return;
@@ -106,7 +124,12 @@ export default class ViewPicksPageComponent implements OnInit {
         this.games = [];
         if(!error && data){
             let picks: any[] = [];
+            this.soloPicks = [];
             data.forEach((pick) => {
+                if(pick.is_postseason && !pick.is_b1g_postseason){
+                    this.soloPicks.push(pick);
+                    return;
+                }
                 const idx = picks.findIndex((existingPick) => pick.picker === existingPick.picker);
                 const gameName = pick.away_team + " @ " + pick.home_team;
                 if(this.games.findIndex((game) => game === gameName) === -1){
@@ -150,7 +173,8 @@ export default class ViewPicksPageComponent implements OnInit {
             () => {
                 const selectedYear = this.selectedYear();
                 if (selectedYear) {
-                    this.weeks = this.rounds[selectedYear];
+                    console.log(this.roundsMap.keys());
+                    this.weeks = this.roundsMap.get(2024)!;
                     this.selectedWeek.set(this.weeks[this.weeks.length - 1]);
                 }
             },

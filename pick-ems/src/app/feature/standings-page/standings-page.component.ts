@@ -1,9 +1,10 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { TableModule } from 'primeng/table';
+import { StandingsService } from '../../data-access/standings.service';
 
 @Component({
-  selector: 'app-standings-page',
+  selector: 'pickems-standings-page',
   standalone: true,
   imports: [TableModule],
   template: `
@@ -11,6 +12,10 @@ import { TableModule } from 'primeng/table';
       <ng-template pTemplate="header">
         <tr>
           <th>Picker</th>
+          @if(includePostseason){
+            <th>Post Record</th>
+            <th>Post %</th>
+          }
           <th>B1G Record</th>
           <th>B1G %</th>
           <th>Total Record</th>
@@ -20,6 +25,10 @@ import { TableModule } from 'primeng/table';
       <ng-template pTemplate="body" let-standing>
         <tr>
           <td [style]="'color: ' + standing.picker_text_color + '; background: ' + standing.picker_background_color + ';'">{{ standing.nickname }}</td>
+          @if(includePostseason){
+            <td>{{ standing.postseason_wins}}-{{standing.postseason_losses}}</td>
+            <td>{{ standing.postseason_percentage.toPrecision(3) }}</td>
+          }
           <td>{{ standing.b1g_wins}}-{{standing.b1g_losses}}</td>
           <td>{{ standing.b1g_percentage.toPrecision(3) }}</td>
           <td>{{ standing.total_wins}}-{{standing.total_losses}}</td>
@@ -34,12 +43,15 @@ import { TableModule } from 'primeng/table';
 })
 export default class StandingsPageComponent implements OnInit {
   private readonly supabase: SupabaseClient = inject(SupabaseClient);
+  private readonly standingsService = inject(StandingsService);
+
   standings: any;
+  includePostseason = false;
 
   private async onLoad(){
-    let { data, error } = await this.supabase.from('v_standings').select('*');
-    if(!error){
-      this.standings = data;
+    this.standings = await this.standingsService.standings();
+    if(this.standings.length > 0){
+      this.includePostseason = this.standings.some((standing: any) => standing.postseason_wins > 0 || standing.postseason_losses > 0);
     }
   }
 

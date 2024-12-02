@@ -5,7 +5,7 @@ import { MenubarModule } from 'primeng/menubar';
 import { ToastModule } from 'primeng/toast';
 
 @Component({
-  selector: 'app-root',
+  selector: 'pickems-root',
   standalone: true,
   imports: [RouterOutlet, ToastModule, MenubarModule],
   template: `
@@ -35,6 +35,10 @@ export class AppComponent {
     {
       label: 'View Picks',
       command: () => this.router.navigate(["/view-picks"]) 
+    },
+    {
+      label: 'Draft Central',
+      command: () => this.router.navigate(["/draft-central"])
     },
     {
       label: 'Log Out',
