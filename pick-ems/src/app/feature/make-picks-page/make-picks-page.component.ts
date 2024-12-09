@@ -85,12 +85,15 @@ export default class MakePicksPageComponent implements OnInit {
     let {data: matchupsData, error: matchupsError} = await this.supabase.from('v_matchup').select("*").eq('round',this.round.id);
     if(matchupsError){
       this.messageService.add({ detail: "Error retrieving details on the current matchups: " + matchupsError?.details, severity: "error"});
-    } else {
-      this.matchups = matchupsData;
+    } else if(matchupsData) {
+      this.matchups = [];
       const group: any = {};
-      this.matchups.forEach((matchup: any) => {
-        group[matchup.id] = new FormControl('', Validators.required);
-        group['text_'+matchup.id] = new FormControl('', Validators.maxLength(100));
+      matchupsData.forEach((matchup: any) => {
+        if (!matchup.is_postseason || matchup.is_b1g_postseason) {
+          this.matchups.push(matchup);
+          group[matchup.id] = new FormControl('', Validators.required);
+          group['text_' + matchup.id] = new FormControl('', Validators.maxLength(100));
+        }
       });
       this.form = new FormGroup(group);
     }
