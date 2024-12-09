@@ -22,7 +22,8 @@ export class StandingsService {
             .order("year", { ascending: false })
             .order("postseason_picks", { ascending: true })
             .order("b1g_percentage", { ascending: false })
-            .order("total_percentage", { ascending: false });
+            .order("total_percentage", { ascending: false })
+            .order("nickname", {ascending: false})
         if (error) {
             this.messageService.add({ detail: "Error retrieiving on-the-clock user: " + error, severity: "error" });
             return [];
