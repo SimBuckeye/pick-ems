@@ -36,6 +36,7 @@ export class StandingsService {
     async standings(): Promise<any[]> {
         const { data, error } = await this.supabase.from("v_standings").select("*")
             .order("year", { ascending: false })
+            .order("postseason_percentage", {ascending: false})
             .order("b1g_percentage", { ascending: false })
             .order("total_percentage", { ascending: false });
         if (error) {
