@@ -20,7 +20,7 @@ import { InputTextModule } from 'primeng/inputtext';
       <h2>Not currently accepting picks.</h2>
     }@else if(!userId){
       <h2>Current user not found. Try logging out and back in.</h2>
-    }@else if(userHasPicks){
+    }@else if(false && userHasPicks){
       <h2>You have already submitted picks for the current round.</h2>
     }@else {
       <h4>Picks now available for week {{round.name}}.</h4>
