@@ -126,6 +126,9 @@ export default class ViewPicksPageComponent implements OnInit {
             this.soloPicks = [];
             data.forEach((pick) => {
                 if(pick.is_postseason && !pick.is_b1g_postseason){
+                    if(pick.is_win){
+                        pick.matchup_title = "(WIN) " + pick.matchup_title;
+                    }
                     this.soloPicks.push(pick);
                     return;
                 }
@@ -150,6 +153,7 @@ export default class ViewPicksPageComponent implements OnInit {
                 }
             })
             this.picks.set(picks);
+            this.soloPicks.sort((a, b) => a.matchup_id - b.matchup_id );
         }
     }
 
