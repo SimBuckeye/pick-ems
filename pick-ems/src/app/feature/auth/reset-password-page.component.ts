@@ -54,7 +54,7 @@ import { InputTextModule } from "primeng/inputtext";
     
     `,
 })
-export default class ConfirmComponent implements OnInit {
+export default class ResetPasswordPageComponent implements OnInit {
     private readonly supabase = inject(SupabaseClient);
     private readonly formBuilder = inject(FormBuilder);
     private readonly messageService = inject(MessageService);
