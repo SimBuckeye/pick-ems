@@ -33,5 +33,14 @@ export const routes: Routes = [
         path: 'draft-central',
         loadComponent: () => import('./feature/bowl-draft/draft-central-page.component'),
         canActivate: [redirectToLogin()]
+    },
+    {
+        path: 'auth/confirm',
+        loadComponent: () => import('./feature/auth/confirm.component')
+    },
+    {
+        path: 'auth/reset-password',
+        loadComponent: () => import('./feature/auth/reset-password-page.component'),
+        canActivate: [redirectToLogin()]
     }
 ];

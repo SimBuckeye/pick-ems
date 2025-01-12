@@ -1,5 +1,5 @@
 import { ApplicationConfig, Provider, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { routes } from './app.routes';
 import { provideClientHydration } from '@angular/platform-browser';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
@@ -9,7 +9,7 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }), 
-    provideRouter(routes), 
+    provideRouter(routes, withComponentInputBinding()), 
     provideClientHydration(),
     provideSupabase(),
     provideAnimations(),
