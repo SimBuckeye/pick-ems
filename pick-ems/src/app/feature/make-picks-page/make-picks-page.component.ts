@@ -20,7 +20,7 @@ import { InputTextModule } from 'primeng/inputtext';
       <h2>Not currently accepting picks.</h2>
     }@else if(!userId){
       <h2>Current user not found. Try logging out and back in.</h2>
-    }@else if(false && userHasPicks){
+    }@else if(userHasPicks){
       <h2>You have already submitted picks for the current round.</h2>
     }@else {
       <h4>Picks now available for week {{round.name}}.</h4>
@@ -74,18 +74,18 @@ export default class MakePicksPageComponent implements OnInit {
 
   private async onLoad(user: User) {
 
-    let {data: roundData, error: roundError} = await this.supabase.from('round').select("*").eq("state", 'accepting_picks');
-    if(roundError){
-      this.messageService.add({detail: "Error retrieving the list of rounds: " + roundError.details, severity: "error"});
+    let { data: roundData, error: roundError } = await this.supabase.from('round').select("*").eq("state", 'accepting_picks');
+    if (roundError) {
+      this.messageService.add({ detail: "Error retrieving the list of rounds: " + roundError.details, severity: "error" });
       return;
-    }else if(roundData && roundData.length > 0){
+    } else if (roundData && roundData.length > 0) {
       this.round = roundData[0];
     }
 
-    let {data: matchupsData, error: matchupsError} = await this.supabase.from('v_matchup').select("*").eq('round',this.round.id);
-    if(matchupsError){
-      this.messageService.add({ detail: "Error retrieving details on the current matchups: " + matchupsError?.details, severity: "error"});
-    } else if(matchupsData) {
+    let { data: matchupsData, error: matchupsError } = await this.supabase.from('v_matchup').select("*").eq('round', this.round.id);
+    if (matchupsError) {
+      this.messageService.add({ detail: "Error retrieving details on the current matchups: " + matchupsError?.details, severity: "error" });
+    } else if (matchupsData) {
       this.matchups = [];
       const group: any = {};
       matchupsData.forEach((matchup: any) => {
@@ -99,23 +99,23 @@ export default class MakePicksPageComponent implements OnInit {
     }
 
     const uuid = user.id;
-    if(uuid){
-      let {data: userData, error: userError} = await this.supabase.from("auth_user").select("*").eq('uuid', uuid);
-      if(userError){
-        this.messageService.add({ detail: "Error retrieving details on the logged-in user: " + userError?.details, severity: "error"});
+    if (uuid) {
+      let { data: userData, error: userError } = await this.supabase.from("auth_user").select("*").eq('uuid', uuid);
+      if (userError) {
+        this.messageService.add({ detail: "Error retrieving details on the logged-in user: " + userError?.details, severity: "error" });
       }
-      if(userData && userData.length === 1){
+      if (userData && userData.length === 1) {
         this.userId = userData[0].id;
       }
     }
 
-    if(this.userId && this.round){
-      let {data: pickResultData, error: pickResultError} = await this.supabase.from("v_pick_result").select("*").eq('picker_id', this.userId).eq('round', this.round.id);
-      if(pickResultError){
-        this.messageService.add({ detail: "Error retrieving the list of picks: " + pickResultError?.details, severity: "error"});
+    if (this.userId && this.round) {
+      let { data: pickResultData, error: pickResultError } = await this.supabase.from("v_pick_result").select("*").eq('picker_id', this.userId).eq('round', this.round.id);
+      if (pickResultError) {
+        this.messageService.add({ detail: "Error retrieving the list of picks: " + pickResultError?.details, severity: "error" });
         this.userHasPicks = true;
       }
-      if(pickResultData && pickResultData.length > 0){
+      if (pickResultData && pickResultData.length > 0) {
         this.userHasPicks = true;
       }
     }
@@ -123,24 +123,24 @@ export default class MakePicksPageComponent implements OnInit {
     this.loading = false;
   }
 
-  matchupOptions(matchup: any): string[]{
+  matchupOptions(matchup: any): string[] {
     return [matchup.away_team, matchup.home_team];
   }
 
-  async onSubmit(){
-    let picks: {pick_is_home: boolean, picker_id: number, matchup_id: string, pick_text: string}[] = [];
+  async onSubmit() {
+    let picks: { pick_is_home: boolean, picker_id: number, matchup_id: string, pick_text: string }[] = [];
     let formResponse = this.form?.value;
     Object.keys(formResponse).forEach((matchupId) => {
-      if(matchupId.includes('text')){
+      if (matchupId.includes('text')) {
         return;
       }
-      picks.push({picker_id: this.userId!, matchup_id: matchupId, pick_is_home: formResponse[matchupId], pick_text: formResponse['text_'+matchupId] })
+      picks.push({ picker_id: this.userId!, matchup_id: matchupId, pick_is_home: formResponse[matchupId], pick_text: formResponse['text_' + matchupId] })
     });
-    const {data, error} = await this.supabase.from('pick').insert(picks).select();
-    if(error){
-      this.messageService.add({detail: error.details, severity: "error"});
-    }else{
-      this.messageService.add({detail: "Picks submitted.", severity: "success"})
+    const { data, error } = await this.supabase.from('pick').insert(picks).select();
+    if (error) {
+      this.messageService.add({ detail: error.details, severity: "error" });
+    } else {
+      this.messageService.add({ detail: "Picks submitted.", severity: "success" })
     }
     this.router.navigate(["/"]);
   }
@@ -148,8 +148,8 @@ export default class MakePicksPageComponent implements OnInit {
   ngOnInit() {
   }
 
-  constructor(){
-    effect(() =>{
+  constructor() {
+    effect(() => {
       const user = this.user();
       if (user) {
         this.onLoad(user);
