@@ -16,10 +16,10 @@ import { MessageService } from 'primeng/api';
         [options]="years"
         [(ngModel)]="selectedYear"
         placeholder="Select a year"/>
-    <p-table [value]="standings()" styleClass="mt-3">
+    <p-table [value]="standings()" styleClass="mt-3" [scrollable]="true">
       <ng-template pTemplate="header">
         <tr>
-          <th>Picker</th>
+          <th pFrozenColumn>Picker</th>
           @if(includePostseason()){
             <th>Post Record</th>
             <th>Post %</th>
@@ -33,7 +33,7 @@ import { MessageService } from 'primeng/api';
       </ng-template>
       <ng-template pTemplate="body" let-standing>
         <tr>
-          <td [style]="'color: ' + standing.picker_text_color + '; background: ' + standing.picker_background_color + ';'">{{ standing.nickname }}</td>
+          <td pFrozenColumn [style]="'color: ' + standing.picker_text_color + '; background: ' + standing.picker_background_color + ';'">{{ standing.nickname }}</td>
           @if(includePostseason()){
             <td>{{ standing.postseason_wins}}-{{standing.postseason_losses}}</td>
             <td>{{ standing.postseason_percentage.toPrecision(3) }}</td>
