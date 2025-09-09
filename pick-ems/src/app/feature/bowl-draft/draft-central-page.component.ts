@@ -53,7 +53,7 @@ export default class DraftCentralPageComponent implements OnInit {
     private messageService = inject(MessageService);
     private supabase = inject(SupabaseClient);
     private readonly router = inject(Router);
-    
+
     onTheClockUser: any | null = null;
     userIsOnTheClock = false;
     draftOrder: any[] = [];
@@ -61,13 +61,13 @@ export default class DraftCentralPageComponent implements OnInit {
     loading = true;
     draftOpen = false;
 
-    onGoToDraft(){
+    onGoToDraft() {
         this.router.navigate(["/bowl-draft"]);
     }
-    
-    async onLoad(userId: string){
+
+    async onLoad(userId: string) {
         this.draftOrder = await this.standingsService.draftOrder();
-        if(this.draftOrder.length > 0){
+        if (this.draftOrder.length > 0) {
             const pickerId = await this.authService.pickerId(userId);
             this.onTheClockUser = this.draftOrder[0];
             this.userIsOnTheClock = this.onTheClockUser.picker_id === pickerId;
@@ -77,7 +77,7 @@ export default class DraftCentralPageComponent implements OnInit {
 
         let { data: roundData, error: roundError } = await this.supabase.from('round').select("*").eq("state", 'accepting_picks');
         if (roundError) {
-            this.messageService.add({ detail: "Error retrieving the list of rounds: " + roundError.details, severity: "error" });
+            this.messageService.add({ detail: "Error retrieving the list of rounds: " + roundError.message, severity: "error" });
             return;
         } else if (roundData && roundData.length > 0) {
             const round = roundData[0];
@@ -90,10 +90,10 @@ export default class DraftCentralPageComponent implements OnInit {
     ngOnInit() {
     }
 
-    constructor(){
+    constructor() {
         effect(() => {
             const user = this.authService.user();
-            if(user){
+            if (user) {
                 this.onLoad(user.id);
             }
         })

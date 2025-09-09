@@ -70,29 +70,29 @@ export default class BowlDraftPageComponent implements OnInit {
   onTheClockUser: any | null = null;
 
   private async onLoad(user: User) {
-    let {data: picksData, error: picksError} = await this.supabase.from('v_pick_result').select("*").eq('is_postseason', true);
-    if(picksError){
-      this.messageService.add({ detail: "Error retrieving list of made picks: " + picksError?.details, severity: "error"});
-    }else{
+    let { data: picksData, error: picksError } = await this.supabase.from('v_pick_result').select("*").eq('is_postseason', true);
+    if (picksError) {
+      this.messageService.add({ detail: "Error retrieving list of made picks: " + picksError?.details, severity: "error" });
+    } else {
       this.pickedMatchups = picksData?.map((pick) => pick.matchup_id) ?? [];
     }
 
-    let {data: matchupsData, error: matchupsError} = await this.supabase.from('v_matchup').select("*").eq('is_postseason', true).eq('is_b1g_postseason', false);
-    if(matchupsError){
-      this.messageService.add({ detail: "Error retrieving details on the current matchups: " + matchupsError?.details, severity: "error"});
+    let { data: matchupsData, error: matchupsError } = await this.supabase.from('v_matchup').select("*").eq('is_postseason', true).eq('is_b1g_postseason', false);
+    if (matchupsError) {
+      this.messageService.add({ detail: "Error retrieving details on the current matchups: " + matchupsError?.details, severity: "error" });
     } else {
       this.matchups = matchupsData ?? [];
       this.matchups = this.matchups.filter((matchup) => !this.pickedMatchups.includes(matchup.id));
       const group: any = {};
       this.matchups.forEach((matchup: any) => {
         group[matchup.id] = new FormControl('');
-        group['text_'+matchup.id] = new FormControl('', Validators.maxLength(100));
+        group['text_' + matchup.id] = new FormControl('', Validators.maxLength(100));
       });
       this.form = new FormGroup(group);
     }
 
     const uuid = user.id;
-    if(uuid){
+    if (uuid) {
       this.userId = await this.authService.pickerId(uuid) ?? undefined;
     }
 
@@ -101,17 +101,17 @@ export default class BowlDraftPageComponent implements OnInit {
     this.loading = false;
   }
 
-  matchupOptions(matchup: any): string[]{
+  matchupOptions(matchup: any): string[] {
     return [matchup.away_team, matchup.home_team];
   }
 
-  async onDraftThisPick(matchupId: string){
-    const pick = {picker_id: this.userId!, matchup_id: matchupId, pick_is_home: this.form!.value[matchupId], pick_text: this.form!.value['text_'+matchupId]};
-    const {data, error} = await this.supabase.from('pick').insert(pick).select();
-    if(error){
-      this.messageService.add({detail: error.details, severity: "error"});
-    }else{
-      this.messageService.add({detail: "Pick drafted.", severity: "success"});
+  async onDraftThisPick(matchupId: string) {
+    const pick = { picker_id: this.userId!, matchup_id: matchupId, pick_is_home: this.form!.value[matchupId], pick_text: this.form!.value['text_' + matchupId] };
+    const { data, error } = await this.supabase.from('pick').insert(pick).select();
+    if (error) {
+      this.messageService.add({ detail: error.message, severity: "error" });
+    } else {
+      this.messageService.add({ detail: "Pick drafted.", severity: "success" });
     }
     this.router.navigate(["/draft-central"]);
   }
@@ -119,8 +119,8 @@ export default class BowlDraftPageComponent implements OnInit {
   ngOnInit() {
   }
 
-  constructor(){
-    effect(() =>{
+  constructor() {
+    effect(() => {
       const user = this.user();
       if (user) {
         this.onLoad(user);

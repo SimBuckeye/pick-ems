@@ -46,6 +46,8 @@ import { TableModule } from 'primeng/table';
                     </tr>
                 </ng-template>
             </p-table>
+        } @else {
+            <h4>No picks available for this week</h4>
         }
         <div class="mt-2 flex flex-row flex-wrap gap-2">
             @for(pick of soloPicks; track pick.pick_id){
@@ -57,7 +59,7 @@ import { TableModule } from 'primeng/table';
             }
         </div>
     } @else {
-        <h4>No picks available for this week</h4>
+        <h4>Loading...</h4>
     }
   `,
     styles: `
@@ -67,28 +69,28 @@ import { TableModule } from 'primeng/table';
 export default class ViewPicksPageComponent implements OnInit {
     private readonly supabase: SupabaseClient = inject(SupabaseClient);
     private readonly messageService = inject(MessageService);
-    years: (string | number)[] = [];
+    years: (number)[] = [];
     weeks: string[] = [];
-    roundsMap: Map<string | number, string[]> = new Map();
-    selectedYear: WritableSignal<string | number | null> = signal(null);
+    roundsMap: Map<number, string[]> = new Map();
+    selectedYear: WritableSignal<number | null> = signal(null);
     selectedWeek: WritableSignal<string | null> = signal(null);
     picks: WritableSignal<any[] | null> = signal(null);
     soloPicks: any[] = [];
     games: string[] = [];
     Object = Object;
     JSon = JSON;
-    currentRoundYear: string | null = null;
+    currentRoundYear: number | null = null;
     currentRoundWeek: string | null = null;
     currentRoundAvailable: boolean = false;
 
     private async onLoad() {
-        let { data: roundsData, error: roundsError } = await this.supabase.from('round').select("*");
+        let { data: roundsData, error: roundsError } = await this.supabase.from('round').select("*").neq('state', 'not_ready').order('id', { ascending: true });
 
-        if(roundsError){
-            this.messageService.add({ detail: "Error retrieving list of rounds: " + roundsError.details, severity: "error"});
-        } else if (roundsData){
-            var round: {year: string, name: string};
-            for(round of roundsData){
+        if (roundsError) {
+            this.messageService.add({ detail: "Error retrieving list of rounds: " + roundsError.message, severity: "error" });
+        } else if (roundsData) {
+            var round: { year: number, name: string };
+            for (round of roundsData) {
                 const names = this.roundsMap.get(round.year);
                 if (names) {
                     names.push(round.name);
@@ -103,30 +105,30 @@ export default class ViewPicksPageComponent implements OnInit {
         let { data: currentRoundData, error: currentRoundError } = await this.supabase.from('current_round').select('*');
 
         if (currentRoundError) {
-            this.messageService.add({ detail: "Error retrieving details on the current round: " + currentRoundError.details, severity: "error" });
+            this.messageService.add({ detail: "Error retrieving details on the current round: " + currentRoundError.message, severity: "error" });
         } else if (currentRoundData && currentRoundData.length > 0) {
             const currentRound = currentRoundData[0];
             const picksLockAt = new Date(currentRound.picks_lock_at);
-            this.currentRoundYear = currentRound.year as string; // Note: these are being treated as numbers even though I'm casting here ?? so below I use == instead of ===
-            this.currentRoundWeek = currentRound.week_name as string;
-            this.selectedYear.set(this.years.find((year) => year == this.currentRoundYear)!);
+            this.currentRoundYear = currentRound.year;
+            this.currentRoundWeek = currentRound.week_name;
+            this.selectedYear.set(this.years.find((year) => year === this.currentRoundYear)!);
             this.currentRoundAvailable = (new Date() >= picksLockAt);
         }
     }
 
-    private async loadPicks(selectedYear: string | number, selectedWeek: string){
-        if(this.selectedYear() == this.currentRoundYear && this.selectedWeek() == this.currentRoundWeek && !this.currentRoundAvailable){
-            this.picks.set(null);
+    private async loadPicks(selectedYear: string | number, selectedWeek: string) {
+        if (this.selectedYear() === this.currentRoundYear && this.selectedWeek() === this.currentRoundWeek && !this.currentRoundAvailable) {
+            this.picks.set([]);
             return;
         }
-        let {data, error} = await this.supabase.from('v_pick_result').select("*").eq('year', selectedYear).eq('week', selectedWeek);
+        let { data, error } = await this.supabase.from('v_pick_result').select("*").eq('year', selectedYear).eq('week', selectedWeek);
         this.games = [];
-        if(!error && data){
+        if (!error && data) {
             let picks: any[] = [];
             this.soloPicks = [];
             data.forEach((pick) => {
-                if(pick.is_postseason && !pick.is_b1g_postseason){
-                    if(pick.is_win){
+                if (pick.is_postseason && !pick.is_b1g_postseason) {
+                    if (pick.is_win) {
                         pick.matchup_title = "(WIN) " + pick.matchup_title;
                     }
                     this.soloPicks.push(pick);
@@ -134,26 +136,29 @@ export default class ViewPicksPageComponent implements OnInit {
                 }
                 const idx = picks.findIndex((existingPick) => pick.picker === existingPick.picker);
                 const gameName = pick.matchup_title || pick.away_team + " @ " + pick.home_team;
-                if(this.games.findIndex((game) => game === gameName) === -1){
+                if (this.games.findIndex((game) => game === gameName) === -1) {
                     this.games.push(gameName);
                 }
-                if(idx > -1){
+                if (idx > -1) {
                     picks[idx][gameName] = {
-                        text: pick.pick_text || (pick.pick_is_home ? pick.home_team : pick.away_team), 
-                        isBold: pick.is_win, isLoss: pick.is_win === false };
-                }else{
+                        text: pick.pick_text || (pick.pick_is_home ? pick.home_team : pick.away_team),
+                        isBold: pick.is_win, isLoss: pick.is_win === false
+                    };
+                } else {
                     let newPick: any = {
                         picker: pick.picker,
                         pickerTextColor: pick.picker_text_color,
-                        pickerBackgroundColor: pick.picker_background_color };
+                        pickerBackgroundColor: pick.picker_background_color
+                    };
                     newPick[gameName] = {
-                        text: pick.pick_text || (pick.pick_is_home ? pick.home_team : pick.away_team), 
-                        isBold: pick.is_win, isLoss: pick.is_win === false };
+                        text: pick.pick_text || (pick.pick_is_home ? pick.home_team : pick.away_team),
+                        isBold: pick.is_win, isLoss: pick.is_win === false
+                    };
                     picks.push(newPick);
                 }
             })
             this.picks.set(picks);
-            this.soloPicks.sort((a, b) => a.matchup_id - b.matchup_id );
+            this.soloPicks.sort((a, b) => a.matchup_id - b.matchup_id);
         }
     }
 
@@ -161,7 +166,7 @@ export default class ViewPicksPageComponent implements OnInit {
         this.onLoad();
     }
 
-    constructor(){
+    constructor() {
         effect(
             () => {
                 const selectedYear = this.selectedYear();
@@ -170,14 +175,13 @@ export default class ViewPicksPageComponent implements OnInit {
                     this.loadPicks(selectedYear, selectedWeek);
                 }
             },
-            {allowSignalWrites: true}
+            { allowSignalWrites: true }
         )
-        effect(
+        effect( // TODO convert to linkedSignal when upgrading to Angular 19+
             () => {
                 const selectedYear = this.selectedYear();
                 if (selectedYear) {
-                    console.log(this.roundsMap.keys());
-                    this.weeks = this.roundsMap.get(2024)!;
+                    this.weeks = this.roundsMap.get(selectedYear)!;
                     this.selectedWeek.set(this.weeks[this.weeks.length - 1]);
                 }
             },

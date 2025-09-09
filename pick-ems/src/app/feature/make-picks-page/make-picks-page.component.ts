@@ -76,7 +76,7 @@ export default class MakePicksPageComponent implements OnInit {
 
     let { data: roundData, error: roundError } = await this.supabase.from('round').select("*").eq("state", 'accepting_picks');
     if (roundError) {
-      this.messageService.add({ detail: "Error retrieving the list of rounds: " + roundError.details, severity: "error" });
+      this.messageService.add({ detail: "Error retrieving the list of rounds: " + roundError.message, severity: "error" });
       return;
     } else if (roundData && roundData.length > 0) {
       this.round = roundData[0];
@@ -84,7 +84,7 @@ export default class MakePicksPageComponent implements OnInit {
 
     let { data: matchupsData, error: matchupsError } = await this.supabase.from('v_matchup').select("*").eq('round', this.round.id);
     if (matchupsError) {
-      this.messageService.add({ detail: "Error retrieving details on the current matchups: " + matchupsError?.details, severity: "error" });
+      this.messageService.add({ detail: "Error retrieving details on the current matchups: " + matchupsError?.message, severity: "error" });
     } else if (matchupsData) {
       this.matchups = [];
       const group: any = {};
