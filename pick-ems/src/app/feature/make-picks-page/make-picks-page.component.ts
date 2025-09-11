@@ -138,7 +138,7 @@ export default class MakePicksPageComponent implements OnInit {
     });
     const { data, error } = await this.supabase.from('pick').insert(picks).select();
     if (error) {
-      this.messageService.add({ detail: error.details, severity: "error" });
+      this.messageService.add({ detail: error.message, severity: "error" });
     } else {
       this.messageService.add({ detail: "Picks submitted.", severity: "success" })
     }
