@@ -7,10 +7,6 @@ export const routes: Routes = [
         loadComponent: () => import('./feature/auth/login-page.component')
     },
     {
-        path: '',
-        loadComponent: () => import('./feature/standings-page/standings-page.component')
-    },
-    {
         path: 'standings',
         loadComponent: () => import('./feature/standings-page/standings-page.component')
     },
@@ -42,5 +38,15 @@ export const routes: Routes = [
         path: 'auth/reset-password',
         loadComponent: () => import('./feature/auth/reset-password-page.component'),
         canActivate: [redirectToLogin()]
-    }
+    },
+    {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'standings',
+    },
+    {
+        path: '**',
+        pathMatch: 'full',
+        redirectTo: 'standings',
+    },
 ];

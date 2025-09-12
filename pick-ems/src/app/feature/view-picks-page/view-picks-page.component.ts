@@ -121,7 +121,7 @@ export default class ViewPicksPageComponent implements OnInit {
             this.picks.set([]);
             return;
         }
-        let { data, error } = await this.supabase.from('v_pick_result').select("*").eq('year', selectedYear).eq('week', selectedWeek);
+        let { data, error } = await this.supabase.from('v_pick_result').select("*").eq('year', selectedYear).eq('week', selectedWeek).order('matchup_id');
         this.games = [];
         if (!error && data) {
             let picks: any[] = [];
