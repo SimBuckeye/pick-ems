@@ -40,11 +40,6 @@ export const routes: Routes = [
         canActivate: [redirectToLogin()]
     },
     {
-        path: '',
-        pathMatch: 'full',
-        redirectTo: '/standings',
-    },
-    {
         path: '**',
         pathMatch: 'full',
         redirectTo: '/standings',
