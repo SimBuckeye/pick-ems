@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, OnInit, Signal, signal, WritableSignal } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, Signal, signal, untracked, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { json } from 'express';
@@ -117,7 +117,7 @@ export default class ViewPicksPageComponent implements OnInit {
     }
 
     private async loadPicks(selectedYear: string | number, selectedWeek: string) {
-        if (this.selectedYear() === this.currentRoundYear && this.selectedWeek() === this.currentRoundWeek && !this.currentRoundAvailable) {
+        if (selectedYear === this.currentRoundYear && selectedWeek === this.currentRoundWeek && !this.currentRoundAvailable) {
             this.picks.set([]);
             return;
         }
@@ -169,7 +169,7 @@ export default class ViewPicksPageComponent implements OnInit {
     constructor() {
         effect(
             () => {
-                const selectedYear = this.selectedYear();
+                const selectedYear = untracked(() => this.selectedYear());
                 const selectedWeek = this.selectedWeek();
                 if (selectedYear && selectedWeek) {
                     this.loadPicks(selectedYear, selectedWeek);
@@ -182,6 +182,7 @@ export default class ViewPicksPageComponent implements OnInit {
                 const selectedYear = this.selectedYear();
                 if (selectedYear) {
                     this.weeks = this.roundsMap.get(selectedYear)!;
+                    this.selectedWeek.set(''); // invalidate in case the new week name matches the old one
                     this.selectedWeek.set(this.weeks[this.weeks.length - 1]);
                 }
             },
