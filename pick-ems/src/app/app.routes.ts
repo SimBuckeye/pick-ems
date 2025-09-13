@@ -3,12 +3,18 @@ import { redirectToLogin } from './data-access/auth.guard';
 
 export const routes: Routes = [
     {
+        path: '',
+        pathMatch: 'full',
+        loadComponent: () => import('./feature/standings-page/standings-page.component')
+    },
+    {
         path: 'login',
         loadComponent: () => import('./feature/auth/login-page.component')
     },
     {
         path: 'standings',
-        loadComponent: () => import('./feature/standings-page/standings-page.component')
+        pathMatch: 'full',
+        redirectTo: '',
     },
     {
         path: 'make-picks',
@@ -42,6 +48,6 @@ export const routes: Routes = [
     {
         path: '**',
         pathMatch: 'full',
-        redirectTo: '/standings',
+        redirectTo: '',
     },
 ];

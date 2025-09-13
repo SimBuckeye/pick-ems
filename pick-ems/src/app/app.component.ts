@@ -32,7 +32,7 @@ export class AppComponent implements OnInit {
   menuItems = signal([
     {
       label: 'Standings',
-      command: () => this.router.navigate(["/standings"])
+      command: () => this.router.navigate(["/"])
     },
     {
       label: 'Picks',
@@ -70,7 +70,7 @@ export class AppComponent implements OnInit {
         this.menuItems.set(menuItems);
         this.menuBar._processedItems = [];
       }
+      this.loaded.set(true);
     });
-    this.loaded.set(true);
   }
 }
