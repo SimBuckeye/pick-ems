@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/pick-ems",
+            "outputPath": "dist/pick-ems-1",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
