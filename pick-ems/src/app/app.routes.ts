@@ -42,11 +42,11 @@ export const routes: Routes = [
     {
         path: '',
         pathMatch: 'full',
-        redirectTo: 'standings',
+        redirectTo: '/standings',
     },
     {
         path: '**',
         pathMatch: 'full',
-        redirectTo: 'standings',
+        redirectTo: '/standings',
     },
 ];
