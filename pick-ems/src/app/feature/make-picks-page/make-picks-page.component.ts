@@ -82,7 +82,7 @@ export default class MakePicksPageComponent implements OnInit {
       this.round = roundData[0];
     }
 
-    let { data: matchupsData, error: matchupsError } = await this.supabase.from('v_matchup').select("*").eq('round', this.round.id);
+    let { data: matchupsData, error: matchupsError } = await this.supabase.from('v_matchup').select("*").eq('round', this.round.id).order('id', { ascending: true });
     if (matchupsError) {
       this.messageService.add({ detail: "Error retrieving details on the current matchups: " + matchupsError?.message, severity: "error" });
     } else if (matchupsData) {
