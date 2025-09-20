@@ -37,6 +37,11 @@ export const routes: Routes = [
         canActivate: [redirectToLogin()]
     },
     {
+        path: 'profile',
+        loadComponent: () => import('./feature/profile-page/profile-page.component'),
+        canActivate: [redirectToLogin()]
+    },
+    {
         path: 'auth/confirm',
         loadComponent: () => import('./feature/auth/confirm.component')
     },

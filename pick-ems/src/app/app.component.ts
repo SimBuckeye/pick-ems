@@ -48,11 +48,20 @@ export class AppComponent implements OnInit {
       ]
     },
     {
-      label: 'Log Out',
-      command: () => {
-        this.supabase.auth.signOut();
-        this.router.navigate(['/login']);
-      }
+      label: 'User',
+      items: [
+        {
+          label: 'Profile',
+          command: () => this.router.navigate(["/profile"])
+        },
+        {
+          label: 'Log Out',
+          command: () => {
+            this.supabase.auth.signOut();
+            this.router.navigate(['/login']);
+          }
+        }
+      ]
     }
   ]);
 
