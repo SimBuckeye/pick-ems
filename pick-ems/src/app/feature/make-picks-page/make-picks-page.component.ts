@@ -1,4 +1,4 @@
-import { Component, effect, inject, OnInit } from '@angular/core';
+import { Component, effect, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { SupabaseClient, User } from '@supabase/supabase-js';
@@ -16,14 +16,14 @@ import { InputTextModule } from 'primeng/inputtext';
   template: `
     @if(loading){
       <h2>loading...</h2>
-    }@else if(!round){
+    }@else if(!round()){
       <h2>Not currently accepting picks.</h2>
     }@else if(!userId){
       <h2>Current user not found. Try logging out and back in.</h2>
     }@else if(userHasPicks){
       <h2>You have already submitted picks for the current round.</h2>
     }@else {
-      <h4>Picks now available for week {{round.name}}.</h4>
+      <h4>Picks now available for week {{round()?.name}}.</h4>
 
       @if(form){
       <div class="h-full flex flex-column align-items-center">
@@ -63,7 +63,7 @@ export default class MakePicksPageComponent implements OnInit {
   private readonly messageService = inject(MessageService);
   private readonly authService = inject(AuthService);
 
-  round: any;
+  round = signal<{ id: number, name: string } | null>(null);
   matchups: any;
   userId: number | undefined;
   JSON = JSON;
@@ -79,10 +79,13 @@ export default class MakePicksPageComponent implements OnInit {
       this.messageService.add({ detail: "Error retrieving the list of rounds: " + roundError.message, severity: "error" });
       return;
     } else if (roundData && roundData.length > 0) {
-      this.round = roundData[0];
+      this.round.set(roundData[0]);
+    } else {
+      this.loading = false;
+      return;
     }
 
-    let { data: matchupsData, error: matchupsError } = await this.supabase.from('v_matchup').select("*").eq('round', this.round.id).order('id', { ascending: true });
+    let { data: matchupsData, error: matchupsError } = await this.supabase.from('v_matchup').select("*").eq('round', this.round()?.id).order('id', { ascending: true });
     if (matchupsError) {
       this.messageService.add({ detail: "Error retrieving details on the current matchups: " + matchupsError?.message, severity: "error" });
     } else if (matchupsData) {
@@ -109,8 +112,8 @@ export default class MakePicksPageComponent implements OnInit {
       }
     }
 
-    if (this.userId && this.round) {
-      let { data: pickResultData, error: pickResultError } = await this.supabase.from("v_pick_result").select("*").eq('picker_id', this.userId).eq('round', this.round.id);
+    if (this.userId && this.round()) {
+      let { data: pickResultData, error: pickResultError } = await this.supabase.from("v_pick_result").select("*").eq('picker_id', this.userId).eq('round', this.round()?.id);
       if (pickResultError) {
         this.messageService.add({ detail: "Error retrieving the list of picks: " + pickResultError?.details, severity: "error" });
         this.userHasPicks = true;

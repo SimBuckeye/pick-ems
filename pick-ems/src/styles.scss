@@ -280,3 +280,13 @@ $sizeVariants: (
 .bg-red {
     background: color-mix(in srgb, var(--red-700) 25%, var(--surface-0));
 }
+
+//PrimeNG Color Picker broken in PrimeNG 17 - this is a workaround
+.p-colorpicker-panel .p-colorpicker-color {
+	background: transparent url("assets/img/custom-color.png") no-repeat left top !important
+}
+
+
+.p-colorpicker-panel .p-colorpicker-hue {
+	background: transparent url("assets/img/custom-hue.png") no-repeat left top !important; 
+} 
