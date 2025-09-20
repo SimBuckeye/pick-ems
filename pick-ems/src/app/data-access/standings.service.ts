@@ -9,9 +9,9 @@ export class StandingsService {
     private readonly supabase: SupabaseClient = inject(SupabaseClient);
     private readonly messageService = inject(MessageService);
 
-    async onTheClock(): Promise<any | null>{
+    async onTheClock(): Promise<any | null> {
         const data = await this.draftOrder();
-        if(data.length > 0){
+        if (data.length > 0) {
             return data[0];
         }
         return null;
@@ -23,7 +23,7 @@ export class StandingsService {
             .order("postseason_picks", { ascending: true })
             .order("b1g_percentage", { ascending: false })
             .order("total_percentage", { ascending: false })
-            .order("nickname", {ascending: false})
+            .order("nickname", { ascending: false })
         if (error) {
             this.messageService.add({ detail: "Error retrieiving on-the-clock user: " + error, severity: "error" });
             return [];
@@ -37,7 +37,8 @@ export class StandingsService {
     async standings(): Promise<any[]> {
         const { data, error } = await this.supabase.from("v_standings").select("*")
             .order("year", { ascending: false })
-            .order("postseason_percentage", {ascending: false})
+            .order("postseason_percentage", { ascending: false })
+            .order("points", { ascending: false })
             .order("b1g_percentage", { ascending: false })
             .order("total_percentage", { ascending: false });
         if (error) {
@@ -48,12 +49,12 @@ export class StandingsService {
     }
 
     async draftPicks(): Promise<any[]> {
-        const {data, error} = await this.supabase.from("v_pick_result").select("*")
+        const { data, error } = await this.supabase.from("v_pick_result").select("*")
             .eq("is_postseason", true)
             .eq("is_b1g_postseason", false)
-            .order("created_at", {ascending: false});
-        if(error){
-            this.messageService.add({detail: "Error retrieving draft picks: " + error, severity: "error"});
+            .order("created_at", { ascending: false });
+        if (error) {
+            this.messageService.add({ detail: "Error retrieving draft picks: " + error, severity: "error" });
             return [];
         }
         return data;
