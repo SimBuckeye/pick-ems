@@ -256,37 +256,27 @@ $sizeVariants: (
         display: none;
     }
 }
-
-@media (prefers-color-scheme: light) {
-    :root {
-        --surface-ground: #f3f2f8; // iOS app surface color
-        --yellow-highlight: var(--yellow-100);
-    }
+:root {
+    --surface-ground: black; // iOS app surface color
+    --yellow-highlight: var(--yellow-900);
 }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        --surface-ground: black; // iOS app surface color
-        --yellow-highlight: var(--yellow-900);
-    }
+.bg-header-footer-alpha {
+    background-color: color-mix(in srgb, var(--surface-0) 80%, transparent);
+}
 
-    .bg-header-footer-alpha {
-        background-color: color-mix(in srgb, var(--surface-0) 80%, transparent);
-    }
+.text-green {
+    color: var(--green-300);
+}
 
-    .text-green {
-        color: var(--green-300);
-    }
+.text-red {
+    color: var(--red-300);
+}
 
-    .text-red {
-        color: var(--red-300);
-    }
+.bg-green {
+    background: color-mix(in srgb, var(--green-700) 25%, var(--surface-0));
+}
 
-    .bg-green {
-        background: color-mix(in srgb, var(--green-700) 25%, var(--surface-0));
-    }
-
-    .bg-red {
-        background: color-mix(in srgb, var(--red-700) 25%, var(--surface-0));
-    }
+.bg-red {
+    background: color-mix(in srgb, var(--red-700) 25%, var(--surface-0));
 }
