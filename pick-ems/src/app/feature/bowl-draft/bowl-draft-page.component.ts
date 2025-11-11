@@ -17,6 +17,8 @@ import { StandingsService } from '../../data-access/standings.service';
   template: `
     @if(loading){
       <h2>loading...</h2>
+    }@else if(!draftOpen){
+      <h2>Draft is currently closed.</h2>
     }@else if(!userId){
       <h2>Current user not found. Try logging out and back in.</h2>
     }@else if(userId !== onTheClockUser?.picker_id){
@@ -32,11 +34,17 @@ import { StandingsService } from '../../data-access/standings.service';
           >
             @for(matchup of matchups; track matchup.id){
               <p-card [header]="matchup.matchup_title">
+                @if(matchup.away_picker_id){
+                  <div class="mb-2 text-yellow-500">{{matchup.away_team_name}} already drafted by {{matchup.away_picker}}.</div>
+                }
+                @if(matchup.home_picker_id){
+                  <div class="mb-2 text-yellow-500">{{matchup.home_team_name}} already drafted by {{matchup.home_picker}}.</div>
+                }
                 <input type="text" pInputText class="w-full mb-2" [formControlName]="'text_'+matchup.id" />
                 @if(form.get('text_'+matchup.id)?.errors?.['maxlength']){
                   <div class="mb-2 text-red-500">Text must be 100 characters or less.</div>
                 }
-                <p-selectButton [options]="[{label: matchup.away_team_name || 'Away', value: false}, {label: matchup.home_team_name || 'Home', value: true}]" [formControlName]="matchup.id"/>
+                <p-selectButton [options]="[{label: matchup.away_team_name || 'Away', value: false, picked: matchup.away_picker_id }, {label: matchup.home_team_name || 'Home', value: true, picked: matchup.home_picker_id}]" [formControlName]="matchup.id" optionDisabled="picked" />
                 <p-button
                   styleClass="w-full mt-2"
                   label="Draft this pick"
@@ -66,35 +74,46 @@ export default class BowlDraftPageComponent implements OnInit {
   form: FormGroup | undefined;
   loading: boolean = true;
   user = this.authService.user;
-  pickedMatchups: number[] = [];
   onTheClockUser: any | null = null;
+  draftOpen: boolean = false;
 
   private async onLoad(user: User) {
-    let { data: picksData, error: picksError } = await this.supabase.from('v_pick_result').select("*").eq('is_postseason', true);
-    if (picksError) {
-      this.messageService.add({ detail: "Error retrieving list of made picks: " + picksError?.details, severity: "error" });
-    } else {
-      this.pickedMatchups = picksData?.map((pick) => pick.matchup_id) ?? [];
-    }
-
-    let { data: matchupsData, error: matchupsError } = await this.supabase.from('v_matchup').select("*").eq('is_postseason', true).eq('is_b1g_postseason', false);
-    if (matchupsError) {
-      this.messageService.add({ detail: "Error retrieving details on the current matchups: " + matchupsError?.details, severity: "error" });
-    } else {
-      this.matchups = matchupsData ?? [];
-      this.matchups = this.matchups.filter((matchup) => !this.pickedMatchups.includes(matchup.id));
-      const group: any = {};
-      this.matchups.forEach((matchup: any) => {
-        group[matchup.id] = new FormControl('');
-        group['text_' + matchup.id] = new FormControl('', Validators.maxLength(100));
-      });
-      this.form = new FormGroup(group);
-    }
-
     const uuid = user.id;
+
     if (uuid) {
       this.userId = await this.authService.pickerId(uuid) ?? undefined;
     }
+
+    let { data: currentRoundData, error: currentRoundError } = await this.supabase.from('current_round').select("*").single();
+    if (!currentRoundData || currentRoundError) {
+      this.messageService.add({ detail: "Error retrieving details on the current round: " + currentRoundError?.details, severity: "error" });
+      return;
+    }
+    this.draftOpen = currentRoundData.draft_open;
+
+    let { data: matchupsData, error: matchupsError } = await this.supabase.from('v_bowl_matchup').select("*");
+    if (!matchupsData || matchupsError) {
+      this.messageService.add({ detail: "Error retrieving details on the bowl matchups: " + matchupsError?.details, severity: "error" });
+      return;
+    }
+    this.matchups = matchupsData ?? [];
+
+    this.matchups = this.matchups.filter((matchup) => {
+      if (matchup.away_picker_id === this.userId || matchup.home_picker_id === this.userId) {
+        return false;
+      }
+      if (matchup.away_picker_id && matchup.home_picker_id) {
+        return false;
+      }
+      return true;
+    });
+
+    const group: any = {};
+    this.matchups.forEach((matchup: any) => {
+      group[matchup.id] = new FormControl('');
+      group['text_' + matchup.id] = new FormControl('', Validators.maxLength(100));
+    });
+    this.form = new FormGroup(group);
 
     this.onTheClockUser = await this.standingsService.onTheClock();
 
