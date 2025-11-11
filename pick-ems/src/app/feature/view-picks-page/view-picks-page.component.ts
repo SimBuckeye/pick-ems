@@ -7,22 +7,29 @@ import { CardModule } from 'primeng/card';
 import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
 import { PickAwayTeamPipe, PickHomeTeamPipe } from '../../util/pipes/pick-team.pipe';
+import { CheckboxModule } from 'primeng/checkbox';
 
 @Component({
     selector: 'pickems-view-picks-page',
     standalone: true,
-    imports: [FormsModule, TableModule, DropdownModule, CardModule],
+    imports: [FormsModule, TableModule, DropdownModule, CardModule, CheckboxModule],
     providers: [PickAwayTeamPipe, PickHomeTeamPipe],
     template: `
-    <p-dropdown 
-        styleClass="mt-3 mr-3"
-        [options]="years"
-        [(ngModel)]="selectedYear"
-        placeholder="Select a year"/>
-    <p-dropdown
-        [options]="weeks"
-        [(ngModel)]="selectedWeek"
-        placeholder="Select a week"/>
+    <div class="mt-3 flex flex-row align-items-center">
+        <p-dropdown 
+            [options]="years"
+            [(ngModel)]="selectedYear"
+            placeholder="Select a year"/>
+        <p-dropdown
+            class="ml-4"
+            [options]="weeks"
+            [(ngModel)]="selectedWeek"
+            placeholder="Select a week"/>
+        <label class="ml-4">
+            <p-checkbox [(ngModel)]="showTeamName" [binary]="true" />
+            <span class="ml-2">Team Names</span>
+        </label>
+    </div>
 
     @if(picks(); as picks){
         @if(picks.length > 0){
@@ -43,7 +50,7 @@ import { PickAwayTeamPipe, PickHomeTeamPipe } from '../../util/pipes/pick-team.p
                             <td [className]="
                                 (pick[game].isBold ? 'font-bold' : '') +
                                 (pick[game].isLoss ? ' line-through' : '')"
-                                >{{pick[game].text}}</td>
+                                >{{showTeamName() && pick[game].text !== pick[game].teamName ? pick[game].text + ' (' + pick[game].teamName + ')' : pick[game].text}}</td>
                         }
                     </tr>
                 </ng-template>
@@ -88,6 +95,7 @@ export default class ViewPicksPageComponent implements OnInit {
     currentRoundYear: number | null = null;
     currentRoundWeek: string | null = null;
     currentRoundAvailable: boolean = false;
+    showTeamName: WritableSignal<boolean> = signal(false);
 
     private async onLoad() {
         let { data: roundsData, error: roundsError } = await this.supabase.from('round').select("*").neq('state', 'not_ready').order('id', { ascending: true });
@@ -148,6 +156,7 @@ export default class ViewPicksPageComponent implements OnInit {
                 if (idx > -1) {
                     picks[idx][gameName] = {
                         text: pick.pick_text || (pick.pick_is_home ? pick.home_team : pick.away_team),
+                        teamName: pick.pick_is_home ? pick.home_team : pick.away_team,
                         isBold: pick.is_win, isLoss: pick.is_win === false
                     };
                 } else {
@@ -158,6 +167,7 @@ export default class ViewPicksPageComponent implements OnInit {
                     };
                     newPick[gameName] = {
                         text: pick.pick_text || (pick.pick_is_home ? pick.home_team : pick.away_team),
+                        teamName: pick.pick_is_home ? pick.home_team : pick.away_team,
                         isBold: pick.is_win, isLoss: pick.is_win === false
                     };
                     picks.push(newPick);
