@@ -8,11 +8,12 @@ import { CardModule } from 'primeng/card';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { AuthService } from '../../data-access/auth.service';
 import { InputTextModule } from 'primeng/inputtext';
+import { MatchupAwayTeamPipe, MatchupHomeTeamPipe } from '../../util/pipes/matchup-team.pipe';
 
 @Component({
   selector: 'pickems-make-picks-page',
   standalone: true,
-  imports: [CardModule, SelectButtonModule, ReactiveFormsModule, ButtonModule, InputTextModule],
+  imports: [CardModule, SelectButtonModule, ReactiveFormsModule, ButtonModule, InputTextModule, MatchupAwayTeamPipe, MatchupHomeTeamPipe],
   template: `
     @if(loading){
       <h2>loading...</h2>
@@ -23,7 +24,7 @@ import { InputTextModule } from 'primeng/inputtext';
     }@else if(userHasPicks){
       <h2>You have already submitted picks for the current round.</h2>
     }@else {
-      <h4>Picks now available for week {{round()?.name}}.</h4>
+      <h4>Picks now available for week {{round()?.name}}. (U): Underdog</h4>
 
       @if(form){
       <div class="h-full flex flex-column align-items-center">
@@ -33,12 +34,12 @@ import { InputTextModule } from 'primeng/inputtext';
               class="w-full max-w-30rem flex flex-column gap-3 px-3"
           >
             @for(matchup of matchups; track matchup.id){
-              <p-card [header]="matchup.matchup_title || (matchup.away_team_name + ' @ ' + matchup.home_team_name)">
+              <p-card [header]="matchup.matchup_title || ((matchup | awayTeam) + ' @ ' + (matchup | homeTeam))">
                 <input type="text" pInputText class="w-full mb-2" [formControlName]="'text_'+matchup.id" />
                 @if(form.get('text_'+matchup.id)?.errors?.['maxlength']){
                   <div class="mb-2 text-red-500">Text must be 100 characters or less.</div>
                 }
-                <p-selectButton [options]="[{label: matchup.away_team_name || 'Away', value: false}, {label: matchup.home_team_name || 'Home', value: true}]" [formControlName]="matchup.id"/>
+                <p-selectButton [options]="[{label: matchup | awayTeam, value: false}, {label: matchup | homeTeam, value: true}]" [formControlName]="matchup.id"/>
               </p-card>
             }
             <!-- Log In Button -->

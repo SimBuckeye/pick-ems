@@ -12,7 +12,8 @@ select
     m.is_postseason as is_postseason,
     m.is_postseason and (away_team.is_b1g or home_team.is_b1g) as is_b1g_postseason,
     m.matchup_title as matchup_title,
-    m.round as round
+    m.round as round,
+	m.underdog
 from
     matchup as m
     left join team as away_team on m.away_team_id = away_team.id
