@@ -6,11 +6,13 @@ import { MessageService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
 import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
+import { PickAwayTeamPipe, PickHomeTeamPipe } from '../../util/pipes/pick-team.pipe';
 
 @Component({
     selector: 'pickems-view-picks-page',
     standalone: true,
     imports: [FormsModule, TableModule, DropdownModule, CardModule],
+    providers: [PickAwayTeamPipe, PickHomeTeamPipe],
     template: `
     <p-dropdown 
         styleClass="mt-3 mr-3"
@@ -46,6 +48,7 @@ import { TableModule } from 'primeng/table';
                     </tr>
                 </ng-template>
             </p-table>
+            <h4>(U): Underdog</h4>
         } @else {
             <h4>No picks available for this week</h4>
         }
@@ -69,6 +72,9 @@ import { TableModule } from 'primeng/table';
 export default class ViewPicksPageComponent implements OnInit {
     private readonly supabase: SupabaseClient = inject(SupabaseClient);
     private readonly messageService = inject(MessageService);
+    private readonly pickAwayTeamPipe = inject(PickAwayTeamPipe);
+    private readonly pickHomeTeamPipe = inject(PickHomeTeamPipe);
+
     years: (number)[] = [];
     weeks: string[] = [];
     roundsMap: Map<number, string[]> = new Map();
@@ -135,7 +141,7 @@ export default class ViewPicksPageComponent implements OnInit {
                     return;
                 }
                 const idx = picks.findIndex((existingPick) => pick.picker === existingPick.picker);
-                const gameName = pick.matchup_title || pick.away_team + " @ " + pick.home_team;
+                const gameName = pick.matchup_title || this.pickAwayTeamPipe.transform(pick) + " @ " + this.pickHomeTeamPipe.transform(pick);
                 if (this.games.findIndex((game) => game === gameName) === -1) {
                     this.games.push(gameName);
                 }

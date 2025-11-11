@@ -22,7 +22,7 @@ select
     m.matchup_title,
     p.id as pick_id,
     m.round as round,
-	
+	m.underdog,
 	case
 		when m.is_postseason or not away_team.is_b1g or not home_team.is_b1g then 0
 		when m.winner_is_home is null then null
