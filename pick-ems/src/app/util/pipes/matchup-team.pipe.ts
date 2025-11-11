@@ -25,7 +25,6 @@ export class MatchupHomeTeamPipe implements PipeTransform {
     transform(matchup: any): any {
         if (!matchup) return 'Home';
         var homeTeamText = matchup.home_team_name;
-        console.log('underdog value:', matchup.underdog);
         if (matchup.underdog === 'home_underdog') {
             homeTeamText += ' (U)';
         }

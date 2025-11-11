@@ -25,7 +25,6 @@ export class PickHomeTeamPipe implements PipeTransform {
     transform(pick: any): any {
         if (!pick) return 'Home';
         var homeTeamText = pick.home_team;
-        console.log('underdog value:', pick.underdog);
         if (pick.underdog === 'home_underdog') {
             homeTeamText += ' (U)';
         }
