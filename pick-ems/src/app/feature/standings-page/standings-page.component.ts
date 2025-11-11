@@ -23,12 +23,19 @@ import { DOCUMENT } from '@angular/common';
         <p-checkbox [(ngModel)]="showExtendedStats" [binary]="true" />
         <span class="ml-2">Extended Stats</span>
       </label>
+      <label class="ml-4">
+        <p-checkbox [(ngModel)]="showLastWeekRecord" [binary]="true" />
+        <span class="ml-2">Last Week</span>
+      </label>
     </div>
     <!-- If scrollable on large screens, will be hidden by the menubar TODO when updating to primeng 18+ will need more robust solution for smaller breakpoint -->
     <p-table [value]="standings()" styleClass="mt-3" [scrollable]="vpWidth < 960"> 
       <ng-template pTemplate="header">
         <tr>
           <th pFrozenColumn>Picker</th>
+          @if(showLastWeekRecord()){
+            <th>Last Week</th>
+          }
           @if(includePostseason()){
             <th>Post Record</th>
             @if(showExtendedStats()){
@@ -49,6 +56,9 @@ import { DOCUMENT } from '@angular/common';
       <ng-template pTemplate="body" let-standing>
         <tr>
           <td pFrozenColumn [style]="'color: ' + standing.picker_text_color + '; background: ' + standing.picker_background_color + ';'">{{ standing.nickname }}</td>
+          @if(showLastWeekRecord()){
+            <td>{{ standing.last_week_results}}</td>
+          }
           @if(includePostseason()){
             <td>{{ standing.postseason_wins}}-{{standing.postseason_losses}}</td>
             @if(showExtendedStats()){
@@ -82,6 +92,7 @@ export default class StandingsPageComponent implements OnInit {
   selectedYear: WritableSignal<number | null> = signal(null);
   allStandings: WritableSignal<any[]> = signal([]);
   showExtendedStats = signal(false);
+  showLastWeekRecord = signal(false);
 
   standings = computed(() => {
     const year = this.selectedYear();
