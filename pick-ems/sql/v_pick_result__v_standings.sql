@@ -1,4 +1,5 @@
 drop view if exists v_standings;
+drop function if exists func_get_last_week_results_for_picker;
 drop view if exists v_pick_result;
 
 create or replace view v_pick_result as
@@ -45,7 +46,37 @@ from
     left join team as home_team on m.home_team_id = home_team.id
     left join round as r on m.round = r.id;
 
+create or replace function get_last_week_results_for_picker(v_picker_id bigint, v_year int2)
+returns text
+language sql
+as $$
+with latest_round as (
+  select round.id
+  from round
+  where state = 'done' and year = v_year and name ~ '^[0-9]+$'
+  order by id desc
+  limit 1
+),
+counts as (
+  select
+    coalesce(sum((vpr.points = 1 or vpr.points = 2)::int), 0) as wins,
+    coalesce(sum((vpr.is_win = false)::int), 0) as losses,
+    coalesce(sum((vpr.points = 2)::int), 0) as bonus_points,
+	picker_id
+  from v_pick_result vpr
+  inner join latest_round lr
+	on vpr.round = lr.id
+  group by picker_id
 
+)
+select 
+	case
+		when bonus_points > 0 then '(' || wins::text || '-' || losses::text || ' + ' || bonus_points::text || ')'
+		else '(' || wins::text || '-' || losses::text || ')'
+	end as last_week_record
+from counts
+where counts.picker_id = v_picker_id;
+$$;
 
 create or replace view v_standings as
 select
@@ -73,7 +104,8 @@ select
     case
         when postseason_wins > 0 or postseason_losses > 0 then postseason_wins::real / (postseason_wins + postseason_losses)::real
         else 0
-    end as postseason_percentage
+    end as postseason_percentage,
+	get_last_week_results_for_picker(picker_id, year) as last_week_results
 from
 (
     select
@@ -118,5 +150,4 @@ from
         left join v_pick_result as pr on u.id = pr.picker_id
     group by nickname, year, u.id
 ) t
-where total_losses > 0 or total_wins > 0
-order by year desc, b1g_percentage desc, total_percentage desc;
+where total_losses > 0 or total_wins > 0;
