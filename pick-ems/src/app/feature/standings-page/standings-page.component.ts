@@ -20,12 +20,16 @@ import { DOCUMENT } from '@angular/common';
         [(ngModel)]="selectedYear"
         placeholder="Select a year"/>
       <label>
-        <p-checkbox [(ngModel)]="showExtendedStats" [binary]="true" />
-        <span class="ml-2">Extended Stats</span>
+        <div class="flex flex-row align-items-center">
+          <p-checkbox [(ngModel)]="showExtendedStats" [binary]="true" />
+          <span class="ml-2">Extended Stats</span>
+        </div>
       </label>
       <label class="ml-4">
-        <p-checkbox [(ngModel)]="showLastWeekRecord" [binary]="true" />
-        <span class="ml-2">Last Week</span>
+        <div class="flex flex-row align-items-center">
+          <p-checkbox [(ngModel)]="showLastWeekRecord" [binary]="true" />
+          <span class="ml-2">Last Week</span>
+        </div>
       </label>
     </div>
     <!-- If scrollable on large screens, will be hidden by the menubar TODO when updating to primeng 18+ will need more robust solution for smaller breakpoint -->
