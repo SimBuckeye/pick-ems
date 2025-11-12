@@ -1,12 +1,12 @@
 create or replace view
   v_round as
 select
-  array_agg(distinct week) as weeks,
+  array_agg(distinct name) as weeks,
   year
 from
-  matchup
+  round
 where 
-  week is not null
+  name is not null
 group by
   year
 order by

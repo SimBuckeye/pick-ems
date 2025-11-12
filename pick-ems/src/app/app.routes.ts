@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { redirectToLogin } from './data-access/auth.guard';
+import { redirectToLogin, redirectUnauthorizedToStandings } from './data-access/auth.guard';
 
 export const routes: Routes = [
     {
@@ -40,6 +40,11 @@ export const routes: Routes = [
         path: 'profile',
         loadComponent: () => import('./feature/profile-page/profile-page.component'),
         canActivate: [redirectToLogin()]
+    },
+    {
+        path: 'admin/create-matchup',
+        loadComponent: () => import('./feature/admin/create-matchup-page.component'),
+        canActivate: [redirectUnauthorizedToStandings()]
     },
     {
         path: 'auth/confirm',

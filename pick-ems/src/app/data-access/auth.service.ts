@@ -27,7 +27,15 @@ export class AuthService {
 
     readonly user: Signal<User | undefined> = toSignal(this.user$);
 
-    async pickerId(userId: string): Promise<number | null>{
+    async getUserId(): Promise<string | null> {
+        const { data, error } = await this.supabase.auth.getUser();
+        if (error || !data || !data.user) {
+            return null;
+        }
+        return data.user.id;
+    }
+
+    async pickerId(userId: string): Promise<number | null> {
 
         const { data: userData, error: userError } = await this.supabase.from("auth_user").select("*").eq('uuid', userId);
         if (userError) {

@@ -42,7 +42,7 @@ import { MatchupAwayTeamPipe, MatchupHomeTeamPipe } from '../../util/pipes/match
                 <p-selectButton [options]="[{label: matchup | awayTeam, value: false}, {label: matchup | homeTeam, value: true}]" [formControlName]="matchup.id"/>
               </p-card>
             }
-            <!-- Log In Button -->
+            
             <p-button
             styleClass="w-full"
             type="submit"
@@ -75,7 +75,7 @@ export default class MakePicksPageComponent implements OnInit {
 
   private async onLoad(user: User) {
 
-    let { data: roundData, error: roundError } = await this.supabase.from('round').select("*").eq("state", 'accepting_picks');
+    let { data: roundData, error: roundError } = await this.supabase.from('round').select("*").eq("state", 'accepting_picks').order('id', { ascending: true }).limit(1);
     if (roundError) {
       this.messageService.add({ detail: "Error retrieving the list of rounds: " + roundError.message, severity: "error" });
       return;
