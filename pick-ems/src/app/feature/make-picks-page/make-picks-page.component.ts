@@ -9,11 +9,12 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 import { AuthService } from '../../data-access/auth.service';
 import { InputTextModule } from 'primeng/inputtext';
 import { MatchupAwayTeamPipe, MatchupHomeTeamPipe } from '../../util/pipes/matchup-team.pipe';
+import { MatchupTitlePipe } from '../../util/pipes/matchup-title.pipe';
 
 @Component({
   selector: 'pickems-make-picks-page',
   standalone: true,
-  imports: [CardModule, SelectButtonModule, ReactiveFormsModule, ButtonModule, InputTextModule, MatchupAwayTeamPipe, MatchupHomeTeamPipe],
+  imports: [CardModule, SelectButtonModule, ReactiveFormsModule, ButtonModule, InputTextModule, MatchupAwayTeamPipe, MatchupHomeTeamPipe, MatchupTitlePipe],
   template: `
     @if(loading){
       <h2>loading...</h2>
@@ -34,7 +35,7 @@ import { MatchupAwayTeamPipe, MatchupHomeTeamPipe } from '../../util/pipes/match
               class="w-full max-w-30rem flex flex-column gap-3 px-3"
           >
             @for(matchup of matchups; track matchup.id){
-              <p-card [header]="matchup.matchup_title || ((matchup | awayTeam) + ' @ ' + (matchup | homeTeam))">
+              <p-card [header]="matchup | title">
                 <input type="text" pInputText class="w-full mb-2" [formControlName]="'text_'+matchup.id" />
                 @if(form.get('text_'+matchup.id)?.errors?.['maxlength']){
                   <div class="mb-2 text-red-500">Text must be 100 characters or less.</div>
@@ -47,6 +48,7 @@ import { MatchupAwayTeamPipe, MatchupHomeTeamPipe } from '../../util/pipes/match
             styleClass="w-full"
             type="submit"
             [disabled]="!form.valid"
+            [loading]="submitting()"
             label="Submit"
             />
           </form>
@@ -72,6 +74,7 @@ export default class MakePicksPageComponent implements OnInit {
   userHasPicks: boolean = false;
   loading: boolean = true;
   user = this.authService.user;
+  submitting = signal(false);
 
   private async onLoad(user: User) {
 
@@ -132,6 +135,7 @@ export default class MakePicksPageComponent implements OnInit {
   }
 
   async onSubmit() {
+    this.submitting.set(true);
     let picks: { pick_is_home: boolean, picker_id: number, matchup_id: string, pick_text: string }[] = [];
     let formResponse = this.form?.value;
     Object.keys(formResponse).forEach((matchupId) => {
@@ -146,6 +150,7 @@ export default class MakePicksPageComponent implements OnInit {
     } else {
       this.messageService.add({ detail: "Picks submitted.", severity: "success" })
     }
+    this.submitting.set(false);
     this.router.navigate(["/"]);
   }
 

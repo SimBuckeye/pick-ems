@@ -15,7 +15,7 @@ import { InputTextModule } from "primeng/inputtext";
         @if(loading()){
             <h2>Loading...</h2>
         } @else {
-            <h2 class="mb-3">Create Matchup</h2>
+            <h2>Create Matchup</h2>
             <label class="flex flex-column gap-2">
                 <span>Away Team</span>
                 <p-dropdown
