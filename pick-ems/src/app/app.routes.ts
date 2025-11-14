@@ -47,6 +47,11 @@ export const routes: Routes = [
         canActivate: [redirectUnauthorizedToStandings()]
     },
     {
+        path: 'admin/resolve-matchups',
+        loadComponent: () => import('./feature/admin/resolve-matchups-page.component'),
+        canActivate: [redirectUnauthorizedToStandings()]
+    },
+    {
         path: 'auth/confirm',
         loadComponent: () => import('./feature/auth/confirm.component')
     },

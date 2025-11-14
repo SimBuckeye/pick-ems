@@ -142,6 +142,10 @@ export class AppComponent implements OnInit {
             label: 'Create Matchup',
             command: () => this.router.navigate(['/admin/create-matchup']),
           },
+          {
+            label: 'Resolve Matchups',
+            command: () => this.router.navigate(['/admin/resolve-matchups']),
+          }
         ]
       });
     }
