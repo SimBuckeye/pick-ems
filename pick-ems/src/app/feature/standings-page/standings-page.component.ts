@@ -2,39 +2,41 @@ import { Component, computed, effect, HostListener, Inject, inject, OnInit, sign
 import { SupabaseClient } from '@supabase/supabase-js';
 import { TableModule } from 'primeng/table';
 import { StandingsService } from '../../data-access/standings.service';
-import { DropdownModule } from "primeng/dropdown";
+import { DropdownModule } from 'primeng/dropdown';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { CheckboxModule } from 'primeng/checkbox';
 import { DOCUMENT } from '@angular/common';
+import { VRoundModel, VStandingsModel } from '../../util/types/supabase.types';
+import { StandingPickerStylePipe } from '../../util/pipes/standing-picker-style.pipe';
 
 @Component({
   selector: 'pickems-standings-page',
   standalone: true,
-  imports: [TableModule, DropdownModule, FormsModule, CheckboxModule],
+  imports: [TableModule, DropdownModule, FormsModule, CheckboxModule, StandingPickerStylePipe],
   template: `
-    <div class="mt-3 flex flex-row align-items-center">
+    <div class='mt-3 flex flex-row align-items-center'>
       <p-dropdown 
-        styleClass="mr-3"
-        [options]="years"
-        [(ngModel)]="selectedYear"
-        placeholder="Select a year"/>
+        styleClass='mr-3'
+        [options]='years'
+        [(ngModel)]='selectedYear'
+        placeholder='Select a year'/>
       <label>
-        <div class="flex flex-row align-items-center">
-          <p-checkbox [(ngModel)]="showExtendedStats" [binary]="true" />
-          <span class="ml-2">Extended Stats</span>
+        <div class='flex flex-row align-items-center'>
+          <p-checkbox [(ngModel)]='showExtendedStats' [binary]='true' />
+          <span class='ml-2'>Extended Stats</span>
         </div>
       </label>
-      <label class="ml-4">
-        <div class="flex flex-row align-items-center">
-          <p-checkbox [(ngModel)]="showLastWeekRecord" [binary]="true" />
-          <span class="ml-2">Last Week</span>
+      <label class='ml-4'>
+        <div class='flex flex-row align-items-center'>
+          <p-checkbox [(ngModel)]='showLastWeekRecord' [binary]='true' />
+          <span class='ml-2'>Last Week</span>
         </div>
       </label>
     </div>
     <!-- If scrollable on large screens, will be hidden by the menubar TODO when updating to primeng 18+ will need more robust solution for smaller breakpoint -->
-    <p-table [value]="standings()" styleClass="mt-3" [scrollable]="vpWidth < 960"> 
-      <ng-template pTemplate="header">
+    <p-table [value]='standings()' styleClass='mt-3' [scrollable]='vpWidth < 960'> 
+      <ng-template pTemplate='header'>
         <tr>
           <th pFrozenColumn>Picker</th>
           @if(showLastWeekRecord()){
@@ -57,9 +59,9 @@ import { DOCUMENT } from '@angular/common';
           }
         </tr>
       </ng-template>
-      <ng-template pTemplate="body" let-standing>
+      <ng-template pTemplate='body' let-standing>
         <tr>
-          <td pFrozenColumn [style]="'color: ' + standing.picker_text_color + '; background: ' + standing.picker_background_color + ';'">{{ standing.nickname }}</td>
+          <td pFrozenColumn [style]='standing | pickerStyle'>{{ standing.nickname }}</td>
           @if(showLastWeekRecord()){
             <td>{{ standing.last_week_results}}</td>
           }
@@ -94,7 +96,7 @@ export default class StandingsPageComponent implements OnInit {
   vpWidth = 960;
   years: number[] = [];
   selectedYear: WritableSignal<number | null> = signal(null);
-  allStandings: WritableSignal<any[]> = signal([]);
+  allStandings: WritableSignal<VStandingsModel[]> = signal([]);
   showExtendedStats = signal(false);
   showLastWeekRecord = signal(false);
 
@@ -102,7 +104,7 @@ export default class StandingsPageComponent implements OnInit {
     const year = this.selectedYear();
     const allStandings = this.allStandings();
     if (year) {
-      return allStandings.filter((standing: any) => standing.year === year);
+      return allStandings.filter((standing: VStandingsModel) => standing.year === year);
     } else {
       return [];
     }
@@ -111,7 +113,7 @@ export default class StandingsPageComponent implements OnInit {
   includePostseason = computed(() => {
     const standings = this.standings();
     if (standings && standings.length > 0) {
-      return standings.some((standing: any) => standing.postseason_wins > 0 || standing.postseason_losses > 0);
+      return standings.some((standing: VStandingsModel) => standing.postseason_wins! > 0 || standing.postseason_losses! > 0);
     }
     return false;
   });
@@ -119,12 +121,12 @@ export default class StandingsPageComponent implements OnInit {
   private async onLoad() {
     this.allStandings.set(await this.standingsService.standings());
 
-    let { data: yearsData, error: yearsError } = await this.supabase.from('v_round').select("year");
+    let { data: yearsData, error: yearsError } = await this.supabase.from('v_round').select<'year', VRoundModel>('year');
 
     if (yearsError) {
-      this.messageService.add({ detail: "Error retrieving list of years: " + yearsError.message, severity: "error" });
+      this.messageService.add({ detail: 'Error retrieving list of years: ' + yearsError.message, severity: 'error' });
     } else if (yearsData) {
-      this.years = yearsData.map((round: any) => round.year);
+      this.years = yearsData.map((round: VRoundModel) => round.year!);
       if (this.years && this.years.length > 0) {
         this.selectedYear.set(this.years[0]);
       }

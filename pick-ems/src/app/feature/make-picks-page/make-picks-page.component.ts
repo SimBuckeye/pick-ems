@@ -10,6 +10,7 @@ import { AuthService } from '../../data-access/auth.service';
 import { InputTextModule } from 'primeng/inputtext';
 import { MatchupAwayTeamPipe, MatchupHomeTeamPipe } from '../../util/pipes/matchup-team.pipe';
 import { MatchupTitlePipe } from '../../util/pipes/matchup-title.pipe';
+import { MatchupModel } from '../../util/types/supabase.types';
 
 @Component({
   selector: 'pickems-make-picks-page',
@@ -28,28 +29,28 @@ import { MatchupTitlePipe } from '../../util/pipes/matchup-title.pipe';
       <h4>Picks now available for week {{round()?.name}}. (U): Underdog</h4>
 
       @if(form){
-      <div class="h-full flex flex-column align-items-center">
+      <div class='h-full flex flex-column align-items-center'>
           <form
-              [formGroup]="form"
-              (ngSubmit)="onSubmit()"
-              class="w-full max-w-30rem flex flex-column gap-3 px-3"
+              [formGroup]='form'
+              (ngSubmit)='onSubmit()'
+              class='w-full max-w-30rem flex flex-column gap-3 px-3'
           >
             @for(matchup of matchups; track matchup.id){
-              <p-card [header]="matchup | title">
-                <input type="text" pInputText class="w-full mb-2" [formControlName]="'text_'+matchup.id" />
+              <p-card [header]='matchup | title'>
+                <input type='text' pInputText class='w-full mb-2' [formControlName]='"text_"+matchup.id' />
                 @if(form.get('text_'+matchup.id)?.errors?.['maxlength']){
-                  <div class="mb-2 text-red-500">Text must be 100 characters or less.</div>
+                  <div class='mb-2 text-red-500'>Text must be 100 characters or less.</div>
                 }
-                <p-selectButton [options]="[{label: matchup | awayTeam, value: false}, {label: matchup | homeTeam, value: true}]" [formControlName]="matchup.id"/>
+                <p-selectButton [options]='[{label: matchup | awayTeam, value: false}, {label: matchup | homeTeam, value: true}]' [formControlName]='matchup.id!'/>
               </p-card>
             }
             
             <p-button
-            styleClass="w-full"
-            type="submit"
-            [disabled]="!form.valid"
-            [loading]="submitting()"
-            label="Submit"
+            styleClass='w-full'
+            type='submit'
+            [disabled]='!form.valid'
+            [loading]='submitting()'
+            label='Submit'
             />
           </form>
       </div>
@@ -67,7 +68,7 @@ export default class MakePicksPageComponent implements OnInit {
   private readonly authService = inject(AuthService);
 
   round = signal<{ id: number, name: string } | null>(null);
-  matchups: any;
+  matchups: MatchupModel[] = [];
   userId: number | undefined;
   JSON = JSON;
   form: FormGroup | undefined;
@@ -78,9 +79,9 @@ export default class MakePicksPageComponent implements OnInit {
 
   private async onLoad(user: User) {
 
-    let { data: roundData, error: roundError } = await this.supabase.from('round').select("*").eq("state", 'accepting_picks').order('id', { ascending: true }).limit(1);
+    let { data: roundData, error: roundError } = await this.supabase.from('round').select('*').eq('state', 'accepting_picks').order('id', { ascending: true }).limit(1);
     if (roundError) {
-      this.messageService.add({ detail: "Error retrieving the list of rounds: " + roundError.message, severity: "error" });
+      this.messageService.add({ detail: 'Error retrieving the list of rounds: ' + roundError.message, severity: 'error' });
       return;
     } else if (roundData && roundData.length > 0) {
       this.round.set(roundData[0]);
@@ -89,12 +90,12 @@ export default class MakePicksPageComponent implements OnInit {
       return;
     }
 
-    let { data: matchupsData, error: matchupsError } = await this.supabase.from('v_matchup').select("*").eq('round', this.round()?.id).order('id', { ascending: true });
+    let { data: matchupsData, error: matchupsError } = await this.supabase.from('v_matchup').select('*').eq('round', this.round()?.id).order('id', { ascending: true });
     if (matchupsError) {
-      this.messageService.add({ detail: "Error retrieving details on the current matchups: " + matchupsError?.message, severity: "error" });
+      this.messageService.add({ detail: 'Error retrieving details on the current matchups: ' + matchupsError?.message, severity: 'error' });
     } else if (matchupsData) {
       this.matchups = [];
-      const group: any = {};
+      const group: Record<string, FormControl> = {};
       matchupsData.forEach((matchup: any) => {
         if (!matchup.is_postseason || matchup.is_b1g_postseason) {
           this.matchups.push(matchup);
@@ -107,9 +108,9 @@ export default class MakePicksPageComponent implements OnInit {
 
     const uuid = user.id;
     if (uuid) {
-      let { data: userData, error: userError } = await this.supabase.from("auth_user").select("*").eq('uuid', uuid);
+      let { data: userData, error: userError } = await this.supabase.from('auth_user').select('*').eq('uuid', uuid);
       if (userError) {
-        this.messageService.add({ detail: "Error retrieving details on the logged-in user: " + userError?.details, severity: "error" });
+        this.messageService.add({ detail: 'Error retrieving details on the logged-in user: ' + userError?.details, severity: 'error' });
       }
       if (userData && userData.length === 1) {
         this.userId = userData[0].id;
@@ -117,9 +118,9 @@ export default class MakePicksPageComponent implements OnInit {
     }
 
     if (this.userId && this.round()) {
-      let { data: pickResultData, error: pickResultError } = await this.supabase.from("v_pick_result").select("*").eq('picker_id', this.userId).eq('round', this.round()?.id);
+      let { data: pickResultData, error: pickResultError } = await this.supabase.from('v_pick_result').select('*').eq('picker_id', this.userId).eq('round', this.round()?.id);
       if (pickResultError) {
-        this.messageService.add({ detail: "Error retrieving the list of picks: " + pickResultError?.details, severity: "error" });
+        this.messageService.add({ detail: 'Error retrieving the list of picks: ' + pickResultError?.details, severity: 'error' });
         this.userHasPicks = true;
       }
       if (pickResultData && pickResultData.length > 0) {
@@ -144,14 +145,14 @@ export default class MakePicksPageComponent implements OnInit {
       }
       picks.push({ picker_id: this.userId!, matchup_id: matchupId, pick_is_home: formResponse[matchupId], pick_text: formResponse['text_' + matchupId] })
     });
-    const { data, error } = await this.supabase.from('pick').insert(picks).select();
-    if (error) {
-      this.messageService.add({ detail: error.message, severity: "error" });
+    const { error: insertError } = await this.supabase.from('pick').insert(picks).select();
+    if (insertError) {
+      this.messageService.add({ detail: insertError.message, severity: 'error' });
     } else {
-      this.messageService.add({ detail: "Picks submitted.", severity: "success" })
+      this.messageService.add({ detail: 'Picks submitted.', severity: 'success' })
     }
     this.submitting.set(false);
-    this.router.navigate(["/"]);
+    this.router.navigate(['/']);
   }
 
   ngOnInit() {

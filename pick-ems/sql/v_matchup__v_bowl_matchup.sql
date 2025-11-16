@@ -13,12 +13,25 @@ select
     m.is_postseason and (away_team.is_b1g or home_team.is_b1g) as is_b1g_postseason,
     m.matchup_title as matchup_title,
     m.round as round,
-	m.underdog
+	m.underdog,
+	coalesce(
+		(
+			select count() from pick where pick.matchup_id = m.id and pick.pick_is_home = false
+		)
+		, 0
+	) as away_picks,
+	coalesce(
+		(
+			select count() from pick where pick.matchup_id = m.id and pick.pick_is_home = true
+		)
+		, 0
+	) as home_picks
 from
     matchup as m
     left join team as away_team on m.away_team_id = away_team.id
     left join team as home_team on m.home_team_id = home_team.id
     left join round as r on m.round = r.id;
+	
 	
 create or replace view v_bowl_matchup as
 select m.*,

@@ -12,9 +12,9 @@ import { Subscription } from 'rxjs';
   standalone: true,
   imports: [RouterOutlet, ToastModule, MenubarModule],
   template: `
-  <div className="pick-ems">
+  <div className='pick-ems'>
     @if(loaded()){
-      <p-menubar #menubar [model]="menuItems"/>
+      <p-menubar #menubar [model]='menuItems'/>
     }
   </div>
   <p-toast/>
@@ -36,7 +36,7 @@ export class AppComponent implements OnInit {
   menuItems = [
     {
       label: 'Standings',
-      command: () => this.router.navigate(["/"]),
+      command: () => this.router.navigate(['/']),
       hidden: true
     },
     {
@@ -44,11 +44,11 @@ export class AppComponent implements OnInit {
       items: [
         {
           label: 'Make Picks',
-          command: () => this.router.navigate(["/make-picks"])
+          command: () => this.router.navigate(['/make-picks'])
         },
         {
           label: 'View Picks',
-          command: () => this.router.navigate(["/view-picks"])
+          command: () => this.router.navigate(['/view-picks'])
         },
       ]
     },
@@ -57,7 +57,7 @@ export class AppComponent implements OnInit {
       items: [
         {
           label: 'Profile',
-          command: () => this.router.navigate(["/profile"])
+          command: () => this.router.navigate(['/profile'])
         },
         {
           label: 'Log Out',
@@ -82,7 +82,7 @@ export class AppComponent implements OnInit {
     const menuItems = [
       {
         label: 'Standings',
-        command: () => this.router.navigate(["/"]),
+        command: () => this.router.navigate(['/']),
         hidden: true
       },
       {
@@ -90,11 +90,11 @@ export class AppComponent implements OnInit {
         items: [
           {
             label: 'Make Picks',
-            command: () => this.router.navigate(["/make-picks"])
+            command: () => this.router.navigate(['/make-picks'])
           },
           {
             label: 'View Picks',
-            command: () => this.router.navigate(["/view-picks"])
+            command: () => this.router.navigate(['/view-picks'])
           },
         ]
       },
@@ -103,7 +103,7 @@ export class AppComponent implements OnInit {
         items: [
           {
             label: 'Profile',
-            command: () => this.router.navigate(["/profile"])
+            command: () => this.router.navigate(['/profile'])
           },
         ]
       }
@@ -115,7 +115,7 @@ export class AppComponent implements OnInit {
     } else if (roundData && roundData.draft_open) {
       menuItems[1].items?.push({
         label: 'Draft Central',
-        command: () => this.router.navigate(["/draft-central"])
+        command: () => this.router.navigate(['/draft-central'])
       });
     }
 
