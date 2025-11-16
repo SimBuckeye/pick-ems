@@ -9,6 +9,7 @@ import { AuthService } from '../../data-access/auth.service';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { SupabaseClient } from '@supabase/supabase-js';
+import { AuthUserModel, VStandingsModel } from '../../util/types/supabase.types';
 
 @Component({
     selector: 'pickems-draft-central-page',
@@ -20,7 +21,7 @@ import { SupabaseClient } from '@supabase/supabase-js';
     }@else{
         <div class='flex flex-column pt-2 gap-2'>
             <p-card header='On the Clock'>
-                <h2 [style]='"margin: 0; color: " + onTheClockUser.picker_text_color + "; background: " + onTheClockUser.picker_background_color + ";"'>{{onTheClockUser?.nickname}}</h2> <!-- TODO style pipe -->
+                <h2 [style]='"margin: 0; color: " + onTheClockUser?.picker_text_color + "; background: " + onTheClockUser?.picker_background_color + ";"'>{{onTheClockUser?.nickname}}</h2> <!-- TODO style pipe -->
                 @if(userIsOnTheClock && draftOpen){
                     <p-button styleClass='mt-2' (onClick)='onGoToDraft()'>Go to draft</p-button>
                 }
@@ -48,13 +49,13 @@ import { SupabaseClient } from '@supabase/supabase-js';
     `
 })
 export default class DraftCentralPageComponent implements OnInit {
-    private standingsService = inject(StandingsService);
-    private authService = inject(AuthService);
-    private messageService = inject(MessageService);
-    private supabase = inject(SupabaseClient);
+    private readonly standingsService = inject(StandingsService);
+    private readonly authService = inject(AuthService);
+    private readonly messageService = inject(MessageService);
+    private readonly supabase = inject(SupabaseClient);
     private readonly router = inject(Router);
 
-    onTheClockUser: any | null = null;
+    onTheClockUser: VStandingsModel | null = null;
     userIsOnTheClock = false;
     draftOrder: any[] = [];
     draftPicks: any[] = [];
@@ -70,7 +71,7 @@ export default class DraftCentralPageComponent implements OnInit {
         if (this.draftOrder.length > 0) {
             const pickerId = await this.authService.pickerId(userId);
             this.onTheClockUser = this.draftOrder[0];
-            this.userIsOnTheClock = this.onTheClockUser.picker_id === pickerId;
+            this.userIsOnTheClock = this.onTheClockUser!.picker_id === pickerId;
         }
         this.draftPicks = await this.standingsService.draftPicks();
 
