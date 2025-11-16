@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { MessageService } from 'primeng/api';
+import { VPickResultModel, VRoundModel, VStandingsModel } from '../util/types/supabase.types';
 
 @Injectable({
     providedIn: 'root',
@@ -18,9 +19,19 @@ export class StandingsService {
     }
 
     async draftOrder(): Promise<any[]> {
-        const { data, error } = await this.supabase.from('v_standings').select('*')
+        const { data: vRoundData, error: vRoundError } = await this.supabase.from('v_round').select<'year', VRoundModel>('year')
+            .order('year', { ascending: false }).limit(1).single();
+        if (vRoundError) {
+            this.messageService.add({ detail: 'Error retrieving current round: ' + vRoundError.message, severity: 'error' });
+            return [];
+        }
+        const currentYear = vRoundData.year;
+
+        const { data, error } = await this.supabase.from('v_standings').select<'*', VStandingsModel>('*')
+            .eq('year', currentYear)
             .order('year', { ascending: false })
             .order('postseason_picks', { ascending: true })
+            .order('points', { ascending: false })
             .order('b1g_percentage', { ascending: false })
             .order('total_percentage', { ascending: false })
             .order('nickname', { ascending: false })
@@ -49,7 +60,16 @@ export class StandingsService {
     }
 
     async draftPicks(): Promise<any[]> {
-        const { data, error } = await this.supabase.from('v_pick_result').select('*')
+        const { data: vRoundData, error: vRoundError } = await this.supabase.from('v_round').select<'year', VRoundModel>('year')
+            .order('year', { ascending: false }).limit(1).single();
+        if (vRoundError) {
+            this.messageService.add({ detail: 'Error retrieving current round: ' + vRoundError.message, severity: 'error' });
+            return [];
+        }
+        const currentYear = vRoundData.year;
+
+        const { data, error } = await this.supabase.from('v_pick_result').select<'*', VPickResultModel>('*')
+            .eq('year', currentYear)
             .eq('is_postseason', true)
             .eq('is_b1g_postseason', false)
             .order('created_at', { ascending: false });
