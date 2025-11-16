@@ -1,8 +1,8 @@
-import { inject, Injectable, Signal } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
-import { SupabaseClient, User } from "@supabase/supabase-js";
-import { MessageService } from "primeng/api";
-import { concat, distinctUntilChanged, from, map, Observable, shareReplay } from "rxjs";
+import { inject, Injectable, Signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { SupabaseClient, User } from '@supabase/supabase-js';
+import { MessageService } from 'primeng/api';
+import { concat, distinctUntilChanged, from, map, Observable, shareReplay } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -37,9 +37,9 @@ export class AuthService {
 
     async pickerId(userId: string): Promise<number | null> {
 
-        const { data: userData, error: userError } = await this.supabase.from("auth_user").select("*").eq('uuid', userId);
+        const { data: userData, error: userError } = await this.supabase.from('auth_user').select('*').eq('uuid', userId);
         if (userError) {
-            this.messageService.add({ detail: "Error retrieving details on the logged-in user: " + userError?.details, severity: "error" });
+            this.messageService.add({ detail: 'Error retrieving details on the logged-in user: ' + userError?.details, severity: 'error' });
         }
         if (userData && userData.length === 1) {
             return userData[0].id;

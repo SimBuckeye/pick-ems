@@ -1,42 +1,42 @@
-import { CommonModule } from "@angular/common";
-import { Component, inject, OnInit } from "@angular/core";
-import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from "@angular/forms";
-import { Router } from "@angular/router";
-import { SupabaseClient } from "@supabase/supabase-js";
-import { MessageService } from "primeng/api";
-import { ButtonModule } from "primeng/button";
-import { InputTextModule } from "primeng/inputtext";
+import { CommonModule } from '@angular/common';
+import { Component, inject, OnInit } from '@angular/core';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { SupabaseClient } from '@supabase/supabase-js';
+import { MessageService } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
     selector: 'auth/reset-password',
     standalone: true,
     imports: [CommonModule, InputTextModule, ButtonModule, ReactiveFormsModule],
     template: `
-        <div class="h-full flex flex-column justify-content-center align-items-center">
+        <div class='h-full flex flex-column justify-content-center align-items-center'>
             <form
-                [formGroup]="form"
-                (ngSubmit)="onSubmit()"
-                class="w-full max-w-30rem flex flex-column gap-3 px-3"
+                [formGroup]='form'
+                (ngSubmit)='onSubmit()'
+                class='w-full max-w-30rem flex flex-column gap-3 px-3'
             >
                 <input
                 pInputText
-                type="password"
-                placeholder="New Password"
-                [formControl]="form.controls.newPassword"
+                type='password'
+                placeholder='New Password'
+                [formControl]='form.controls.newPassword'
                 />
 
                 <input
                 pInputText
-                type="password"
-                placeholder="Confirm New Password"
-                [formControl]="form.controls.confirmNewPassword"
+                type='password'
+                placeholder='Confirm New Password'
+                [formControl]='form.controls.confirmNewPassword'
                 />
 
                 <p-button
-                styleClass="w-full"
-                type="submit"
-                [disabled]="!form.valid"
-                label="Reset Password"
+                styleClass='w-full'
+                type='submit'
+                [disabled]='!form.valid'
+                label='Reset Password'
                 />
 
                 @if(form.invalid){
@@ -64,37 +64,37 @@ export default class ResetPasswordPageComponent implements OnInit {
     readonly form = this.formBuilder.nonNullable.group({
         newPassword: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(20)]],
         confirmNewPassword: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(20)]],
-    }, {validators: [stringsMatchValidator]});
+    }, { validators: [stringsMatchValidator] });
 
-    get newPassword(){
+    get newPassword() {
         return this.form.get('newPassword');
     }
 
-    get confirmNewPassword(){
+    get confirmNewPassword() {
         return this.form.get('confirmNewPassword');
     }
 
-    async onSubmit(): Promise<void>{
-        const {newPassword} = this.form.getRawValue();
-        const {data, error} = await this.supabase.auth.updateUser({
+    async onSubmit(): Promise<void> {
+        const { newPassword } = this.form.getRawValue();
+        const { data, error } = await this.supabase.auth.updateUser({
             password: newPassword
         });
-        if(error){
-            this.messageService.add({detail: error.message, severity: "error"});
-        }else{
-            this.messageService.add({detail: "Password changed", severity: "success"});
+        if (error) {
+            this.messageService.add({ detail: error.message, severity: 'error' });
+        } else {
+            this.messageService.add({ detail: 'Password changed', severity: 'success' });
             this.router.navigate(['/']);
         }
     }
 
-    ngOnInit(){
-        
+    ngOnInit() {
+
     }
 }
 
-export function stringsMatchValidator(c: AbstractControl): ValidationErrors | null{
-    if(c.get('newPassword')?.value !== c.get('confirmNewPassword')?.value){
-        return { passwordsMustMatch: true};
+export function stringsMatchValidator(c: AbstractControl): ValidationErrors | null {
+    if (c.get('newPassword')?.value !== c.get('confirmNewPassword')?.value) {
+        return { passwordsMustMatch: true };
     }
     return null;
 }

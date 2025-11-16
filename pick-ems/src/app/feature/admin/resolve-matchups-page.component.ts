@@ -7,6 +7,7 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import { MessageService } from 'primeng/api';
 import { MatchupTitlePipe } from '../../util/pipes/matchup-title.pipe';
 import { ButtonModule } from 'primeng/button';
+import { MatchupModel, RoundModel } from '../../util/types/supabase.types';
 
 @Component({
     selector: 'app-resolve-matchups-page',
@@ -77,12 +78,10 @@ export default class ResolveMatchupsPageComponent implements OnInit {
     private readonly supabase = inject(SupabaseClient);
     private readonly messageService = inject(MessageService);
 
-    round: WritableSignal<any | null> = signal(null);
-    matchups: WritableSignal<any[]> = signal([]);
+    round: WritableSignal<RoundModel | null> = signal(null);
+    matchups: WritableSignal<(MatchupModel & { selectedWinner: 'home' | 'away' })[]> = signal([]);
     loading: WritableSignal<boolean> = signal(true);
     error: WritableSignal<string | null> = signal(null);
-    savingAll: WritableSignal<boolean> = signal(false);
-    savingIds: WritableSignal<Set<number>> = signal(new Set<number>());
     submitting: WritableSignal<boolean> = signal(false);
 
     submitDisabled = computed(() => {
@@ -103,7 +102,7 @@ export default class ResolveMatchupsPageComponent implements OnInit {
 
         this.round.set(roundsData[0]);
 
-        let { data: matchupsData, error: matchupsError } = await this.supabase.from('v_matchup').select('*').eq('round', this.round().id);
+        let { data: matchupsData, error: matchupsError } = await this.supabase.from('v_matchup').select('*').eq('round', this.round()?.id);
         if (matchupsError || !matchupsData) {
             this.messageService.add({ detail: "Error retrieving matchups: " + matchupsError?.message, severity: "error" });
             this.loading.set(false);

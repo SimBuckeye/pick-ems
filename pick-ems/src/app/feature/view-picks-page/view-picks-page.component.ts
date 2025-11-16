@@ -8,33 +8,35 @@ import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
 import { PickAwayTeamPipe, PickHomeTeamPipe } from '../../util/pipes/pick-team.pipe';
 import { CheckboxModule } from 'primeng/checkbox';
+import { StandingPickerStylePipe } from '../../util/pipes/standing-picker-style.pipe';
+import { VPickResultModel } from '../../util/types/supabase.types';
 
 @Component({
     selector: 'pickems-view-picks-page',
     standalone: true,
-    imports: [FormsModule, TableModule, DropdownModule, CardModule, CheckboxModule],
+    imports: [FormsModule, TableModule, DropdownModule, CardModule, CheckboxModule, StandingPickerStylePipe],
     providers: [PickAwayTeamPipe, PickHomeTeamPipe],
     template: `
-    <div class="mt-3 flex flex-row align-items-center">
+    <div class='mt-3 flex flex-row align-items-center'>
         <p-dropdown 
-            [options]="years"
-            [(ngModel)]="selectedYear"
-            placeholder="Select a year"/>
+            [options]='years'
+            [(ngModel)]='selectedYear'
+            placeholder='Select a year'/>
         <p-dropdown
-            class="ml-4"
-            [options]="weeks"
-            [(ngModel)]="selectedWeek"
-            placeholder="Select a week"/>
-        <label class="ml-4">
-            <p-checkbox [(ngModel)]="showTeamName" [binary]="true" />
-            <span class="ml-2">Team Names</span>
+            class='ml-4'
+            [options]='weeks'
+            [(ngModel)]='selectedWeek'
+            placeholder='Select a week'/>
+        <label class='ml-4'>
+            <p-checkbox [(ngModel)]='showTeamName' [binary]='true' />
+            <span class='ml-2'>Team Names</span>
         </label>
     </div>
 
     @if(picks(); as picks){
         @if(picks.length > 0){
-            <p-table [value]="picks" [scrollable]="true" styleClass="mt-3">
-                <ng-template pTemplate="header">
+            <p-table [value]='picks' [scrollable]='true' styleClass='mt-3'>
+                <ng-template pTemplate='header'>
                     <tr>
                         <th pFrozenColumn>Picker</th>
                         @for(game of games; track $index){
@@ -42,14 +44,13 @@ import { CheckboxModule } from 'primeng/checkbox';
                         }
                     </tr>
                 </ng-template>
-                <ng-template pTemplate="body" let-pick>
+                <ng-template pTemplate='body' let-pick>
                     <tr>
-                        <td pFrozenColumn [style]="
-                                'color: ' + pick.pickerTextColor + '; background: ' + pick.pickerBackgroundColor + ';'" >{{ pick.picker }}</td>
+                        <td pFrozenColumn [style]='pick | pickerStyle' >{{ pick.picker }}</td>
                         @for(game of games; track game){
-                            <td [className]="
-                                (pick[game].isBold ? 'font-bold' : '') +
-                                (pick[game].isLoss ? ' line-through' : '')"
+                            <td [className]='
+                                (pick[game].isBold ? " font-bold" : "") +
+                                (pick[game].isLoss ? " line-through" : "")'
                                 >{{showTeamName() && pick[game].text !== pick[game].teamName ? pick[game].text + ' (' + pick[game].teamName + ')' : pick[game].text}}</td>
                         }
                     </tr>
@@ -59,9 +60,9 @@ import { CheckboxModule } from 'primeng/checkbox';
         } @else {
             <h4>No picks available for this week</h4>
         }
-        <div class="mt-2 flex flex-row flex-wrap gap-2">
+        <div class='mt-2 flex flex-row flex-wrap gap-2'>
             @for(pick of soloPicks; track pick.pick_id){
-                <p-card [header]="pick.matchup_title" [style]="pick.is_win === false ? {color: 'black', background: 'gray'} : {color: pick.picker_text_color, background: pick.picker_background_color}">
+                <p-card [header]='pick.matchup_title || ""' [style]='pick.is_win === false ? {color: "black", background: "gray"} : {color: pick.picker_text_color, background: pick.picker_background_color}'>
                     <div>{{pick.away_team}} vs. {{pick.home_team}}</div>
                     <div>Picker: {{pick.picker}}</div>
                     <div>Pick: {{pick.pick_text}} ({{pick.pick_is_home ? pick.home_team : pick.away_team}})</div>
@@ -87,8 +88,8 @@ export default class ViewPicksPageComponent implements OnInit {
     roundsMap: Map<number, string[]> = new Map();
     selectedYear: WritableSignal<number | null> = signal(null);
     selectedWeek: WritableSignal<string | null> = signal(null);
-    picks: WritableSignal<any[] | null> = signal(null);
-    soloPicks: any[] = [];
+    picks: WritableSignal<ViewPick[]> = signal([]);
+    soloPicks: VPickResultModel[] = [];
     games: string[] = [];
     Object = Object;
     JSon = JSON;
@@ -98,10 +99,10 @@ export default class ViewPicksPageComponent implements OnInit {
     showTeamName: WritableSignal<boolean> = signal(false);
 
     private async onLoad() {
-        let { data: roundsData, error: roundsError } = await this.supabase.from('round').select("*").neq('state', 'not_ready').order('id', { ascending: true });
+        let { data: roundsData, error: roundsError } = await this.supabase.from('round').select('*').neq('state', 'not_ready').order('id', { ascending: true });
 
         if (roundsError) {
-            this.messageService.add({ detail: "Error retrieving list of rounds: " + roundsError.message, severity: "error" });
+            this.messageService.add({ detail: 'Error retrieving list of rounds: ' + roundsError.message, severity: 'error' });
         } else if (roundsData) {
             var round: { year: number, name: string };
             for (round of roundsData) {
@@ -119,7 +120,7 @@ export default class ViewPicksPageComponent implements OnInit {
         let { data: currentRoundData, error: currentRoundError } = await this.supabase.from('current_round').select('*');
 
         if (currentRoundError) {
-            this.messageService.add({ detail: "Error retrieving details on the current round: " + currentRoundError.message, severity: "error" });
+            this.messageService.add({ detail: 'Error retrieving details on the current round: ' + currentRoundError.message, severity: 'error' });
         } else if (currentRoundData && currentRoundData.length > 0) {
             const currentRound = currentRoundData[0];
             const picksLockAt = new Date(currentRound.picks_lock_at);
@@ -135,21 +136,21 @@ export default class ViewPicksPageComponent implements OnInit {
             this.picks.set([]);
             return;
         }
-        let { data, error } = await this.supabase.from('v_pick_result').select("*").eq('year', selectedYear).eq('week', selectedWeek).order('matchup_id');
+        let { data, error } = await this.supabase.from('v_pick_result').select('*').eq('year', selectedYear).eq('week', selectedWeek).order('matchup_id');
         this.games = [];
         if (!error && data) {
-            let picks: any[] = [];
+            let picks: ViewPick[] = [];
             this.soloPicks = [];
             data.forEach((pick) => {
                 if (pick.is_postseason && !pick.is_b1g_postseason) {
                     if (pick.is_win) {
-                        pick.matchup_title = "(WIN) " + pick.matchup_title;
+                        pick.matchup_title = '(WIN) ' + pick.matchup_title;
                     }
                     this.soloPicks.push(pick);
                     return;
                 }
                 const idx = picks.findIndex((existingPick) => pick.picker === existingPick.picker);
-                const gameName = pick.matchup_title || this.pickAwayTeamPipe.transform(pick) + " @ " + this.pickHomeTeamPipe.transform(pick);
+                const gameName = pick.matchup_title || this.pickAwayTeamPipe.transform(pick) + ' @ ' + this.pickHomeTeamPipe.transform(pick);
                 if (this.games.findIndex((game) => game === gameName) === -1) {
                     this.games.push(gameName);
                 }
@@ -157,13 +158,14 @@ export default class ViewPicksPageComponent implements OnInit {
                     picks[idx][gameName] = {
                         text: pick.pick_text || (pick.pick_is_home ? pick.home_team : pick.away_team),
                         teamName: pick.pick_is_home ? pick.home_team : pick.away_team,
-                        isBold: pick.is_win, isLoss: pick.is_win === false
+                        isBold: pick.is_win,
+                        isLoss: pick.is_win === false
                     };
                 } else {
                     let newPick: any = {
                         picker: pick.picker,
-                        pickerTextColor: pick.picker_text_color,
-                        pickerBackgroundColor: pick.picker_background_color
+                        picker_text_color: pick.picker_text_color,
+                        picker_background_color: pick.picker_background_color
                     };
                     newPick[gameName] = {
                         text: pick.pick_text || (pick.pick_is_home ? pick.home_team : pick.away_team),
@@ -174,7 +176,7 @@ export default class ViewPicksPageComponent implements OnInit {
                 }
             })
             this.picks.set(picks);
-            this.soloPicks.sort((a, b) => a.matchup_id - b.matchup_id);
+            this.soloPicks.sort((a, b) => a.matchup_id! - b.matchup_id!);
         }
     }
 
@@ -206,3 +208,14 @@ export default class ViewPicksPageComponent implements OnInit {
         )
     }
 }
+
+type ViewPick = {
+    picker: string,
+    picker_text_color: string,
+    picker_background_color: boolean,
+} & Record<string, {
+    text: string,
+    teamName: string,
+    isBold: boolean,
+    isLoss: boolean,
+}>;

@@ -1,5 +1,4 @@
-
-import { inject, Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform } from '@angular/core';
 import { MatchupAwayTeamPipe, MatchupHomeTeamPipe } from './matchup-team.pipe';
 
 @Pipe({
