@@ -9,7 +9,6 @@ import { MessageService } from 'primeng/api';
 
 @Component({
     selector: 'login-page',
-    standalone: true,
     imports: [CommonModule, InputTextModule, ButtonModule, ReactiveFormsModule],
     template: `
         <div class='h-full flex flex-column justify-content-center align-items-center'>
@@ -46,7 +45,7 @@ import { MessageService } from 'primeng/api';
     `,
     styles: `
     
-    `,
+    `
 })
 export default class LoginPageComponent implements OnInit {
     private readonly supabase = inject(SupabaseClient);

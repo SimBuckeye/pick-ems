@@ -9,10 +9,9 @@ import { AuthUserModel, VStandingsModel } from '../../util/types/supabase.types'
 import { StandingPickerStylePipe } from "../../util/pipes/standing-picker-style.pipe";
 
 @Component({
-  selector: 'pickems-profile-page',
-  standalone: true,
-  imports: [FormsModule, InputTextModule, ColorPickerModule, ButtonModule, StandingPickerStylePipe],
-  template: `
+    selector: 'pickems-profile-page',
+    imports: [FormsModule, InputTextModule, ColorPickerModule, ButtonModule, StandingPickerStylePipe],
+    template: `
   @if(loading()){
       <h2>Loading...</h2>
   }@else{
@@ -44,7 +43,7 @@ import { StandingPickerStylePipe } from "../../util/pipes/standing-picker-style.
     </div>
   }
     `,
-  styles: `
+    styles: `
 
   `
 })

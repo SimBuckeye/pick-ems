@@ -9,7 +9,6 @@ import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
     selector: 'auth/reset-password',
-    standalone: true,
     imports: [CommonModule, InputTextModule, ButtonModule, ReactiveFormsModule],
     template: `
         <div class='h-full flex flex-column justify-content-center align-items-center'>
@@ -52,7 +51,7 @@ import { InputTextModule } from 'primeng/inputtext';
     `,
     styles: `
     
-    `,
+    `
 })
 export default class ResetPasswordPageComponent implements OnInit {
     private readonly supabase = inject(SupabaseClient);

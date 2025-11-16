@@ -5,7 +5,6 @@ import { SupabaseClient } from '@supabase/supabase-js';
 
 @Component({
     selector: 'auth/confirm',
-    standalone: true,
     imports: [CommonModule],
     template: `
         <div class='mt-3'>
@@ -14,7 +13,7 @@ import { SupabaseClient } from '@supabase/supabase-js';
     `,
     styles: `
     
-    `,
+    `
 })
 export default class ConfirmComponent implements OnInit {
     private readonly supabase = inject(SupabaseClient);

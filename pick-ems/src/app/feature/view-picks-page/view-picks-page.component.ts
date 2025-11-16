@@ -13,7 +13,6 @@ import { VPickResultModel } from '../../util/types/supabase.types';
 
 @Component({
     selector: 'pickems-view-picks-page',
-    standalone: true,
     imports: [FormsModule, TableModule, DropdownModule, CardModule, CheckboxModule, StandingPickerStylePipe],
     providers: [PickAwayTeamPipe, PickHomeTeamPipe],
     template: `
@@ -75,7 +74,7 @@ import { VPickResultModel } from '../../util/types/supabase.types';
   `,
     styles: `
         p-card{width: 49%;}
-  `,
+  `
 })
 export default class ViewPicksPageComponent implements OnInit {
     private readonly supabase: SupabaseClient = inject(SupabaseClient);

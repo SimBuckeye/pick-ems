@@ -13,7 +13,6 @@ import { AuthUserModel, VStandingsModel } from '../../util/types/supabase.types'
 
 @Component({
     selector: 'pickems-draft-central-page',
-    standalone: true,
     imports: [CardModule, SelectButtonModule, ReactiveFormsModule, ButtonModule, InputTextModule],
     template: `
     @if(loading){

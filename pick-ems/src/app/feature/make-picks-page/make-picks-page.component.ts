@@ -13,10 +13,9 @@ import { MatchupTitlePipe } from '../../util/pipes/matchup-title.pipe';
 import { MatchupModel } from '../../util/types/supabase.types';
 
 @Component({
-  selector: 'pickems-make-picks-page',
-  standalone: true,
-  imports: [CardModule, SelectButtonModule, ReactiveFormsModule, ButtonModule, InputTextModule, MatchupAwayTeamPipe, MatchupHomeTeamPipe, MatchupTitlePipe],
-  template: `
+    selector: 'pickems-make-picks-page',
+    imports: [CardModule, SelectButtonModule, ReactiveFormsModule, ButtonModule, InputTextModule, MatchupAwayTeamPipe, MatchupHomeTeamPipe, MatchupTitlePipe],
+    template: `
     @if(loading){
       <h2>loading...</h2>
     }@else if(!round()){
@@ -57,7 +56,7 @@ import { MatchupModel } from '../../util/types/supabase.types';
       }
     }
   `,
-  styles: `
+    styles: `
 
   `
 })

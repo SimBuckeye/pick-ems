@@ -9,7 +9,6 @@ import { MatchupModel, RoundModel, TeamModel, Underdog_Type } from '../../util/t
 
 @Component({
     selector: 'pickems-create-matchup-page',
-    standalone: true,
     imports: [DropdownModule, FormsModule, CalendarModule, InputTextModule],
     template: `
     <div class='h-full flex flex-column align-items-center gap-4'>
@@ -94,7 +93,7 @@ import { MatchupModel, RoundModel, TeamModel, Underdog_Type } from '../../util/t
                 label='Submit'
                 (onClick)='onSubmit()' />
         }
-    `,
+    `
 })
 export default class CreateMatchupPageComponent implements OnInit {
     private readonly supabase = inject(SupabaseClient);

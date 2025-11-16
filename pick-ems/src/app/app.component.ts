@@ -8,10 +8,9 @@ import { AuthService } from './data-access/auth.service';
 import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'pickems-root',
-  standalone: true,
-  imports: [RouterOutlet, ToastModule, MenubarModule],
-  template: `
+    selector: 'pickems-root',
+    imports: [RouterOutlet, ToastModule, MenubarModule],
+    template: `
   <div className='pick-ems'>
     @if(loaded()){
       <p-menubar #menubar [model]='menuItems'/>
@@ -20,7 +19,7 @@ import { Subscription } from 'rxjs';
   <p-toast/>
   <router-outlet />
   `,
-  styles: `
+    styles: `
   `
 })
 export class AppComponent implements OnInit {

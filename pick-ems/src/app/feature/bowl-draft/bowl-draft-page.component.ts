@@ -11,10 +11,9 @@ import { InputTextModule } from 'primeng/inputtext';
 import { StandingsService } from '../../data-access/standings.service';
 
 @Component({
-  selector: 'pickems-bowl-draft-page',
-  standalone: true,
-  imports: [CardModule, SelectButtonModule, ReactiveFormsModule, ButtonModule, InputTextModule],
-  template: `
+    selector: 'pickems-bowl-draft-page',
+    imports: [CardModule, SelectButtonModule, ReactiveFormsModule, ButtonModule, InputTextModule],
+    template: `
     @if(loading){
       <h2>loading...</h2>
     }@else if(!draftOpen){
@@ -57,7 +56,7 @@ import { StandingsService } from '../../data-access/standings.service';
       }
     }
   `,
-  styles: `
+    styles: `
 
   `
 })

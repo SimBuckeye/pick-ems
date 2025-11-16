@@ -11,10 +11,9 @@ import { VRoundModel, VStandingsModel } from '../../util/types/supabase.types';
 import { StandingPickerStylePipe } from '../../util/pipes/standing-picker-style.pipe';
 
 @Component({
-  selector: 'pickems-standings-page',
-  standalone: true,
-  imports: [TableModule, DropdownModule, FormsModule, CheckboxModule, StandingPickerStylePipe],
-  template: `
+    selector: 'pickems-standings-page',
+    imports: [TableModule, DropdownModule, FormsModule, CheckboxModule, StandingPickerStylePipe],
+    template: `
     <div class='mt-3 flex flex-row align-items-center'>
       <p-dropdown 
         styleClass='mr-3'
@@ -84,9 +83,9 @@ import { StandingPickerStylePipe } from '../../util/pipes/standing-picker-style.
       </ng-template>
     </p-table>
   `,
-  styles: `
+    styles: `
   
-  `,
+  `
 })
 export default class StandingsPageComponent implements OnInit {
   private readonly supabase: SupabaseClient = inject(SupabaseClient);

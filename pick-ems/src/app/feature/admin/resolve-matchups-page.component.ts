@@ -11,7 +11,6 @@ import { MatchupModel, RoundModel } from '../../util/types/supabase.types';
 
 @Component({
     selector: 'app-resolve-matchups-page',
-    standalone: true,
     imports: [FormsModule, RadioButtonModule, TableModule, MatchupAwayTeamPipe, MatchupHomeTeamPipe, MatchupTitlePipe, ButtonModule],
     template: `
     <h2>Resolve Matchups</h2>
@@ -72,7 +71,7 @@ import { MatchupModel, RoundModel } from '../../util/types/supabase.types';
 
     }
     `,
-    styles: [],
+    styles: []
 })
 export default class ResolveMatchupsPageComponent implements OnInit {
     private readonly supabase = inject(SupabaseClient);
