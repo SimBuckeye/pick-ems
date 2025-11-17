@@ -2,57 +2,58 @@ import { Component, computed, inject, OnInit, Signal, signal, WritableSignal } f
 import { FormsModule } from '@angular/forms';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { MessageService } from 'primeng/api';
-import { CalendarModule } from 'primeng/calendar';
-import { DropdownModule } from 'primeng/dropdown';
+import { DatePicker } from 'primeng/datepicker';
+import { SelectModule } from 'primeng/select';
 import { InputTextModule } from 'primeng/inputtext';
 import { MatchupModel, RoundModel, TeamModel, Underdog_Type } from '../../util/types/supabase.types';
+import { ButtonModule } from "primeng/button";
 
 @Component({
     selector: 'pickems-create-matchup-page',
-    imports: [DropdownModule, FormsModule, CalendarModule, InputTextModule],
+    imports: [SelectModule, FormsModule, DatePicker, InputTextModule, ButtonModule],
     template: `
-    <div class='h-full flex flex-column align-items-center gap-4'>
+    <div class='h-full flex flex-col items-center gap-6'>
         @if(loading()){
-            <h2>Loading...</h2>
+            <h1 class="text-lg">Loading...</h1>
         } @else {
-            <h2>Create Matchup</h2>
-            <label class='flex flex-column gap-2'>
+            <h1 class="text-2xl flex flex-col gap-2 mt-2">Create Matchup</h1>
+            <label class='flex flex-col gap-2'>
                 <span>Away Team</span>
-                <p-dropdown
+                <p-select
                     [filter]='true'
-                    styleClass='w-20rem'
+                    class='w-80'
                     [options]='teams()'
                     [(ngModel)]='selectedAwayTeam' 
                     optionLabel='name'
                     optionValue='id'/>
             </label>
-            <label class='flex flex-column gap-2'>
+            <label class='flex flex-col gap-2'>
                 <span>Home Team</span>
-                <p-dropdown
+                <p-select
                     [filter]='true'
-                    styleClass='w-20rem'
+                    class='w-80'
                     [options]='teams()'
                     [(ngModel)]='selectedHomeTeam'
                     optionLabel='name'
                     optionValue='id'/>
             </label>
-            <label class='flex flex-column gap-2'>
+            <label class='flex flex-col gap-2 w-80'>
                 <span>Game Date & Time</span>
-                <p-calendar
+                <p-date-picker
                     [showIcon]='true'
                     [(ngModel)]='selectedDate'
                     dateFormat='yy-mm-dd'
-                    styleClass='w-20rem'
+                    inputStyleClass="w-80"
                     placeholder='Select a date'
                     [showTime]='true'
                     hourFormat='12'>
-                </p-calendar>
+                </p-date-picker>
             </label>
-            <label class='flex flex-column gap-2'>
+            <label class='flex flex-col gap-2'>
                 <span>Underdog</span>
-                <p-dropdown
+                <p-select
                     [filter]='false'
-                    styleClass='w-20rem'
+                    class='w-80'
                     [options]='[
                         { label: "Home Underdog", value: "home_underdog" },
                         { label: "Away Underdog", value: "away_underdog" },
@@ -62,26 +63,26 @@ import { MatchupModel, RoundModel, TeamModel, Underdog_Type } from '../../util/t
                     optionLabel='label'
                     optionValue='value'
                     placeholder='Select underdog'>
-                </p-dropdown>
+                </p-select>
             </label>
-            <label class='flex flex-column gap-2'>
+            <label class='flex flex-col gap-2'>
                 <span>Round</span>
-                <p-dropdown
+                <p-select
                     [filter]='true'
-                    styleClass='w-20rem'
+                    class='w-80'
                     [options]='roundOptions()'
                     [(ngModel)]='selectedRound'
                     optionLabel='label'
                     optionValue='value'
                     placeholder='Select round'>
-                </p-dropdown>
+                </p-select>
             </label>
-            <label class='flex flex-column gap-2'>
+            <label class='flex flex-col gap-2'>
                 <span>Matchup Title</span>
                 <input
                     pInputText
                     type='text'
-                    class='p-inputtext w-20rem'
+                    class='p-inputtext w-80'
                     [(ngModel)]='matchupTitle'
                     placeholder='Enter matchup title' />
             </label>

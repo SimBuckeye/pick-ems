@@ -6,6 +6,30 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { MessageService } from 'primeng/api';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { Database } from './util/types/supabase.schema';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { providePrimeNG } from 'primeng/config';
+import { definePreset } from '@primeng/themes';
+import Aura from '@primeuix/themes/aura';
+
+const preset = definePreset(Aura, {
+  extend: {
+    semantic: {
+      primary: {
+        50: '{pink.50}',
+        100: '{pink.100}',
+        200: '{pink.200}',
+        300: '{pink.300}',
+        400: '{pink.400}',
+        500: '{pink.500}',
+        600: '{pink.600}',
+        700: '{pink.700}',
+        800: '{pink.800}',
+        900: '{pink.900}',
+        950: '{pink.950}',
+      },
+    },
+  }
+});
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -13,7 +37,16 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes, withComponentInputBinding()),
     provideClientHydration(),
     provideSupabase(),
-    provideAnimations(),
+    provideAnimationsAsync(),
+    providePrimeNG({
+      theme: {
+        preset: preset,
+        options: {
+          darkModeSelector: '.pick-ems-dark',
+          cssLayer: false
+        }
+      }
+    }),
     MessageService]
 };
 

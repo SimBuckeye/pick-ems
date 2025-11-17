@@ -4,29 +4,29 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import { json } from 'express';
 import { MessageService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
-import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
 import { PickAwayTeamPipe, PickHomeTeamPipe } from '../../util/pipes/pick-team.pipe';
 import { CheckboxModule } from 'primeng/checkbox';
 import { StandingPickerStylePipe } from '../../util/pipes/standing-picker-style.pipe';
 import { VPickResultModel } from '../../util/types/supabase.types';
+import { SelectModule } from 'primeng/select';
 
 @Component({
     selector: 'pickems-view-picks-page',
-    imports: [FormsModule, TableModule, DropdownModule, CardModule, CheckboxModule, StandingPickerStylePipe],
+    imports: [FormsModule, TableModule, CardModule, CheckboxModule, StandingPickerStylePipe, SelectModule],
     providers: [PickAwayTeamPipe, PickHomeTeamPipe],
     template: `
-    <div class='mt-3 flex flex-row align-items-center'>
-        <p-dropdown 
+    <div class='mt-4 flex flex-row items-center'>
+        <p-select 
             [options]='years'
             [(ngModel)]='selectedYear'
             placeholder='Select a year'/>
-        <p-dropdown
-            class='ml-4'
+        <p-select
+            class='ml-6'
             [options]='weeks'
             [(ngModel)]='selectedWeek'
             placeholder='Select a week'/>
-        <label class='ml-4'>
+        <label class='ml-6'>
             <p-checkbox [(ngModel)]='showTeamName' [binary]='true' />
             <span class='ml-2'>Team Names</span>
         </label>
@@ -34,7 +34,7 @@ import { VPickResultModel } from '../../util/types/supabase.types';
 
     @if(picks(); as picks){
         @if(picks.length > 0){
-            <p-table [value]='picks' [scrollable]='true' styleClass='mt-3'>
+            <p-table [value]='picks' [scrollable]='true' styleClass='mt-4'>
                 <ng-template pTemplate='header'>
                     <tr>
                         <th pFrozenColumn>Picker</th>
@@ -55,9 +55,9 @@ import { VPickResultModel } from '../../util/types/supabase.types';
                     </tr>
                 </ng-template>
             </p-table>
-            <h4>(U): Underdog</h4>
+            <h1>(U): Underdog</h1>
         } @else {
-            <h4>No picks available for this week</h4>
+            <h1 class='text-lg pt-3'>No picks available for this week</h1>
         }
         <div class='mt-2 flex flex-row flex-wrap gap-2'>
             @for(pick of soloPicks; track pick.pick_id){
@@ -69,7 +69,7 @@ import { VPickResultModel } from '../../util/types/supabase.types';
             }
         </div>
     } @else {
-        <h4>Loading...</h4>
+        <h1 class='text-lg'>Loading...</h1>
     }
   `,
     styles: `

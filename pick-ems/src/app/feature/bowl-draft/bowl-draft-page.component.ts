@@ -11,25 +11,25 @@ import { InputTextModule } from 'primeng/inputtext';
 import { StandingsService } from '../../data-access/standings.service';
 
 @Component({
-    selector: 'pickems-bowl-draft-page',
-    imports: [CardModule, SelectButtonModule, ReactiveFormsModule, ButtonModule, InputTextModule],
-    template: `
+  selector: 'pickems-bowl-draft-page',
+  imports: [CardModule, SelectButtonModule, ReactiveFormsModule, ButtonModule, InputTextModule],
+  template: `
     @if(loading){
-      <h2>loading...</h2>
+      <h1 class="text-lg">loading...</h1>
     }@else if(!draftOpen){
-      <h2>Draft is currently closed.</h2>
+      <h1 class="text-2xl">Draft is currently closed.</h1>
     }@else if(!userId){
-      <h2>Current user not found. Try logging out and back in.</h2>
+      <h1 class="text-2xl">Current user not found. Try logging out and back in.</h1>
     }@else if(userId !== onTheClockUser?.picker_id){
-      <h4>{{onTheClockUser?.nickname}} is on the clock!</h4>
+      <h1 class="text-2xl">{{onTheClockUser?.nickname}} is on the clock!</h1>
     }@else {
-      <h4>You are on the clock! Please select one of the options below.</h4>
+      <h1 class="text-2xl">You are on the clock! Please select one of the options below.</h1>
 
       @if(form){
-      <div class='h-full flex flex-column align-items-center'>
+      <div class='h-full flex flex-col items-center'>
           <form
               [formGroup]='form'
-              class='w-full max-w-30rem flex flex-column gap-3 px-3'
+              class='w-full max-w-[30rem] flex flex-col gap-4 px-4'
           >
             @for(matchup of matchups; track matchup.id){
               <p-card [header]='matchup.matchup_title'>
@@ -56,7 +56,7 @@ import { StandingsService } from '../../data-access/standings.service';
       }
     }
   `,
-    styles: `
+  styles: `
 
   `
 })

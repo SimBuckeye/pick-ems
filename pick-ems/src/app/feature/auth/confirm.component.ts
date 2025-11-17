@@ -7,7 +7,7 @@ import { SupabaseClient } from '@supabase/supabase-js';
     selector: 'auth/confirm',
     imports: [CommonModule],
     template: `
-        <div class='mt-3'>
+        <div class='mt-4'>
             {{error || 'Confirming...'}}
         </div>
     `,

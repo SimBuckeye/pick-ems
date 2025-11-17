@@ -9,33 +9,33 @@ import { AuthUserModel, VStandingsModel } from '../../util/types/supabase.types'
 import { StandingPickerStylePipe } from "../../util/pipes/standing-picker-style.pipe";
 
 @Component({
-    selector: 'pickems-profile-page',
-    imports: [FormsModule, InputTextModule, ColorPickerModule, ButtonModule, StandingPickerStylePipe],
-    template: `
+  selector: 'pickems-profile-page',
+  imports: [FormsModule, InputTextModule, ColorPickerModule, ButtonModule, StandingPickerStylePipe],
+  template: `
   @if(loading()){
-      <h2>Loading...</h2>
+      <h1 class="text-lg">Loading...</h1>
   }@else{
     <div class='mt-2'>
       <div [style]='standingModel() | pickerStyle' >{{ nickname() }}</div>
-      <label class='w-full flex flex-row align-items-center'>
-        <span class='w-5rem' >Name:</span>
+      <label class='w-full flex flex-row items-center'>
+        <span class='w-20' >Name:</span>
         <input class='my-2 ml-2 flex-1' pInputText type='text' [value]='name()' readonly/>
       </label>
-      <label class='w-full flex flex-row align-items-center'>
-        <span class='w-5rem' >Email:</span>
+      <label class='w-full flex flex-row items-center'>
+        <span class='w-20' >Email:</span>
         <input class='my-2 ml-2 flex-1' pInputText type='text' [(ngModel)]='email'/>
       </label>
-      <label class='w-full flex flex-row align-items-center'>
-        <span class='w-5rem' >Nickname:</span>
+      <label class='w-full flex flex-row items-center'>
+        <span class='w-20' >Nickname:</span>
         <input class='my-2 ml-2 flex-1' pInputText type='text' [(ngModel)]='nickname' maxlength=12/>
       </label>
-      <label class='w-full flex flex-row align-items-center'>
-        <span class='w-10rem'>Text Color:</span>
+      <label class='w-full flex flex-row items-center'>
+        <span class='w-40'>Text Color:</span>
         <p-colorPicker class='ml-2 my-2' [(ngModel)]='textColor'/>
         <input class='ml-2' pInputText type='text' [(ngModel)]='textColor' maxlength=7/>
       </label>
-      <label class='w-full flex flex-row align-items-center'>
-        <span class='w-10rem'>Background Color:</span>
+      <label class='w-full flex flex-row items-center'>
+        <span class='w-40'>Background Color:</span>
         <p-colorPicker class='ml-2 my-2' [(ngModel)]='backgroundColor'/>
         <input class='ml-2' pInputText type='text' [(ngModel)]='backgroundColor' maxlength=7/>
       </label> 
@@ -43,7 +43,7 @@ import { StandingPickerStylePipe } from "../../util/pipes/standing-picker-style.
     </div>
   }
     `,
-    styles: `
+  styles: `
 
   `
 })
