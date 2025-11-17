@@ -7,6 +7,7 @@ import { ColorPickerModule } from 'primeng/colorpicker';
 import { InputTextModule } from 'primeng/inputtext';
 import { AuthUserModel, VStandingsModel } from '../../util/types/supabase.types';
 import { StandingPickerStylePipe } from "../../util/pipes/standing-picker-style.pipe";
+import { PushNotificationService } from '../../util/push-notification.service';
 
 @Component({
   selector: 'pickems-profile-page',
@@ -15,7 +16,7 @@ import { StandingPickerStylePipe } from "../../util/pipes/standing-picker-style.
   @if(loading()){
       <h1 class="text-lg">Loading...</h1>
   }@else{
-    <div class='mt-2'>
+    <div class='mt-2 flex flex-col gap-2'>
       <div [style]='standingModel() | pickerStyle' >{{ nickname() }}</div>
       <label class='w-full flex flex-row items-center'>
         <span class='w-20' >Name:</span>
@@ -39,7 +40,8 @@ import { StandingPickerStylePipe } from "../../util/pipes/standing-picker-style.
         <p-colorPicker class='ml-2 my-2' [(ngModel)]='backgroundColor'/>
         <input class='ml-2' pInputText type='text' [(ngModel)]='backgroundColor' maxlength=7/>
       </label> 
-      <p-button class='mt-2' (onClick)='save()' type='submit' [disabled]='saveDisabled()'>Save</p-button>
+      <p-button styleClass='w-60' class='mt-2' (onClick)='save()' type='submit' [disabled]='saveDisabled()'>Save</p-button>
+      <p-button styleClass='w-60' class='mt-2' (onClick)='subscribeToPushNotifications()'>Enable Push Notifications</p-button>
     </div>
   }
     `,
@@ -50,12 +52,15 @@ import { StandingPickerStylePipe } from "../../util/pipes/standing-picker-style.
 export default class ProfilePageComponent implements OnInit {
   private readonly supabase: SupabaseClient = inject(SupabaseClient);
   private readonly messageService = inject(MessageService);
+  private readonly notificationService = inject(PushNotificationService);
+
   email = signal<string>('');
   name = signal<string>('');
   nickname = signal<string>('');
   textColor = signal<string>('');
   backgroundColor = signal<string>('');
   loading = signal<boolean>(true);
+  fmt = signal<string>('');
 
   standingModel = computed<Pick<VStandingsModel, 'picker_text_color' | 'picker_background_color'>>(() => {
     const textColor = this.textColor();
@@ -128,6 +133,10 @@ export default class ProfilePageComponent implements OnInit {
     } else {
       this.messageService.add({ detail: 'Profile updated.', severity: 'success' });
     }
+  }
+
+  subscribeToPushNotifications() {
+    this.notificationService.subscribeToPushNotifications();
   }
 
   ngOnInit(): void {

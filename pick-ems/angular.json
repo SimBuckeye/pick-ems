@@ -11,7 +11,7 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular/build:application",
+          "builder": "@ngx-env/builder:application",
           "options": {
             "outputPath": "dist/pick-ems-1",
             "index": "src/index.html",
@@ -25,7 +25,8 @@
               {
                 "glob": "**/*",
                 "input": "public"
-              }
+              },
+              "src/firebase-messaging-sw.js"
             ],
             "styles": [
               "src/styles.css"
@@ -48,7 +49,8 @@
                   "maximumError": "4kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "serviceWorker": "ngsw-config.json"
             },
             "development": {
               "optimization": false,
@@ -59,7 +61,7 @@
           "defaultConfiguration": "production"
         },
         "serve": {
-          "builder": "@angular/build:dev-server",
+          "builder": "@ngx-env/builder:dev-server",
           "configurations": {
             "production": {
               "buildTarget": "pick-ems:build:production"
@@ -68,13 +70,22 @@
               "buildTarget": "pick-ems:build:development"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "development",
+          "options": {
+            "ssl": true,
+            "sslCert": "private/cert.pem",
+            "sslKey": "private/key.pem",
+            "allowedHosts": [
+              "*.ngrok-free.app"
+            ]
+          }
         },
         "extract-i18n": {
-          "builder": "@angular/build:extract-i18n"
+          "builder": "@ngx-env/builder:extract-i18n",
+          "options": {}
         },
         "test": {
-          "builder": "@angular/build:karma",
+          "builder": "@ngx-env/builder:karma",
           "options": {
             "polyfills": [
               "zone.js",
@@ -85,7 +96,8 @@
               {
                 "glob": "**/*",
                 "input": "public"
-              }
+              },
+              "src/firebase-messaging-sw.js"
             ],
             "styles": [
               "src/styles.css"
