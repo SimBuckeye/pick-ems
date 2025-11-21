@@ -10,7 +10,7 @@ import { AuthService } from '../../data-access/auth.service';
 import { InputTextModule } from 'primeng/inputtext';
 import { MatchupAwayTeamPipe, MatchupHomeTeamPipe } from '../../util/pipes/matchup-team.pipe';
 import { MatchupTitlePipe } from '../../util/pipes/matchup-title.pipe';
-import { MatchupModel } from '../../util/types/supabase.types';
+import { MatchupModel } from '../../util/types/supabase.types'; //whitespace
 
 @Component({
   selector: 'pickems-make-picks-page',
