@@ -10,30 +10,29 @@ import { AuthService } from '../../data-access/auth.service';
 import { InputTextModule } from 'primeng/inputtext';
 import { MatchupAwayTeamPipe, MatchupHomeTeamPipe } from '../../util/pipes/matchup-team.pipe';
 import { MatchupTitlePipe } from '../../util/pipes/matchup-title.pipe';
-import { MatchupModel } from '../../util/types/supabase.types';
+import { MatchupModel } from '../../util/types/supabase.types'; //whitespace
 
 @Component({
   selector: 'pickems-make-picks-page',
-  standalone: true,
   imports: [CardModule, SelectButtonModule, ReactiveFormsModule, ButtonModule, InputTextModule, MatchupAwayTeamPipe, MatchupHomeTeamPipe, MatchupTitlePipe],
   template: `
     @if(loading){
-      <h2>loading...</h2>
+      <h1 class="text-lg">loading...</h1>
     }@else if(!round()){
-      <h2>Not currently accepting picks.</h2>
+      <h1 class="text-2xl">Not currently accepting picks.</h1>
     }@else if(!userId){
-      <h2>Current user not found. Try logging out and back in.</h2>
+      <h1 class="text-2xl">Current user not found. Try logging out and back in.</h1>
     }@else if(userHasPicks){
-      <h2>You have already submitted picks for the current round.</h2>
+      <h1 class="text-2xl">You have already submitted picks for the current round.</h1>
     }@else {
-      <h4>Picks now available for week {{round()?.name}}. (U): Underdog</h4>
+      <h1 class="text-2xl">Picks now available for week {{round()?.name}}. (U): Underdog</h1>
 
       @if(form){
-      <div class='h-full flex flex-column align-items-center'>
+      <div class='h-full flex flex-col items-center'>
           <form
               [formGroup]='form'
               (ngSubmit)='onSubmit()'
-              class='w-full max-w-30rem flex flex-column gap-3 px-3'
+              class='w-full max-w-[30rem] flex flex-col gap-4 px-4'
           >
             @for(matchup of matchups; track matchup.id){
               <p-card [header]='matchup | title'>

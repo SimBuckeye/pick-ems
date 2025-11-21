@@ -13,15 +13,14 @@ import { AuthUserModel, VStandingsModel } from '../../util/types/supabase.types'
 
 @Component({
     selector: 'pickems-draft-central-page',
-    standalone: true,
     imports: [CardModule, SelectButtonModule, ReactiveFormsModule, ButtonModule, InputTextModule],
     template: `
     @if(loading){
         <div>Loading...</div>
     }@else{
-        <div class='flex flex-column pt-2 gap-2'>
+        <div class='flex flex-col pt-2 gap-2'>
             <p-card header='On the Clock'>
-                <h2 [style]='"margin: 0; color: " + onTheClockUser?.picker_text_color + "; background: " + onTheClockUser?.picker_background_color + ";"'>{{onTheClockUser?.nickname}}</h2> <!-- TODO style pipe -->
+                <h1 class="text-2xl" [style]='"margin: 0; color: " + onTheClockUser?.picker_text_color + "; background: " + onTheClockUser?.picker_background_color + ";"'>{{onTheClockUser?.nickname}}</h1> <!-- TODO style pipe -->
                 @if(userIsOnTheClock && draftOpen){
                     <p-button styleClass='mt-2' (onClick)='onGoToDraft()'>Go to draft</p-button>
                 }
@@ -29,7 +28,7 @@ import { AuthUserModel, VStandingsModel } from '../../util/types/supabase.types'
             <p-card header='Draft Order'>
                 @for(user of draftOrder; track user.picker_id){
                     @if(user !== onTheClockUser){
-                        <h4 [style]='"margin: 0; color: " + user.picker_text_color + "; background: " + user.picker_background_color + ";"'>{{user?.nickname}}</h4> <!-- TODO style pipe -->
+                        <h1 class="text-2xl" [style]='"margin: 0; color: " + user.picker_text_color + "; background: " + user.picker_background_color + ";"'>{{user?.nickname}}</h1> <!-- TODO style pipe -->
                     }
                 }
             </p-card>

@@ -20,6 +20,16 @@ select
     m.matchup_title,
     p.id as pick_id,
     m.round as round,
+	
+	case
+		when m.winner_is_home is null then null
+		when m.winner_is_home and p.pick_is_home and m.underdog = 'home_underdog' then 2
+		when not winner_is_home and not p.pick_is_home and m.underdog = 'away_underdog' then 2
+		when m.winner_is_home = p.pick_is_home then 1
+	else
+		0
+	end as points,
+	
     case
         when m.winner_is_home is null then null
     else

@@ -11,15 +11,14 @@ import { MatchupModel, RoundModel } from '../../util/types/supabase.types';
 
 @Component({
     selector: 'app-resolve-matchups-page',
-    standalone: true,
     imports: [FormsModule, RadioButtonModule, TableModule, MatchupAwayTeamPipe, MatchupHomeTeamPipe, MatchupTitlePipe, ButtonModule],
     template: `
-    <h2>Resolve Matchups</h2>
+    <h1 class="text-2xl">Resolve Matchups</h1>
     @if(loading()){
-        <h4>Loading...</h4>
+        <h1 class="text-lg">Loading...</h1>
     }@else {
         @if(round(); as round){
-            <h3>Round {{ round.year }} - {{round.name}}</h3>
+            <h1 class="text-lg mt-3">Round {{ round.year }} - {{round.name}}</h1>
 
             <p-table [value]="matchups()" class="w-full">
                 <ng-template pTemplate="header">
@@ -37,7 +36,7 @@ import { MatchupModel, RoundModel } from '../../util/types/supabase.types';
                         <td class="text-center">{{ matchup.away_picks ?? 0 }}</td>
                         <td class="text-center">{{ matchup.home_picks ?? 0 }}</td>
                         <td>
-                            <label class="flex flex-column gap-2 align-items-center">
+                            <label class="flex flex-col gap-2 items-center">
                                 <p-radioButton
                                     [name]="'winner-' + matchup.id"
                                     value="away"
@@ -47,7 +46,7 @@ import { MatchupModel, RoundModel } from '../../util/types/supabase.types';
                         </td>
 
                         <td>
-                            <label class="flex flex-column gap-2 align-items-center">
+                            <label class="flex flex-col gap-2 items-center">
                                 <p-radioButton
                                     [name]="'winner-' + matchup.id"
                                     value="home"
@@ -60,19 +59,19 @@ import { MatchupModel, RoundModel } from '../../util/types/supabase.types';
             </p-table>
 
             <p-button
-                styleClass="w-full mt-3"
+                styleClass="w-full mt-4"
                 type="submit"
                 [disabled]="submitDisabled()"
                 [loading]="submitting()"
                 label="Submit"
                 (onClick)="onSubmit()" />
         }@else{
-            <h4>No locked round found.</h4>
+            <h1 class='text-lg mt-3'>No locked round found.</h1>
         }
 
     }
     `,
-    styles: [],
+    styles: []
 })
 export default class ResolveMatchupsPageComponent implements OnInit {
     private readonly supabase = inject(SupabaseClient);

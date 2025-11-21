@@ -9,14 +9,13 @@ import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
     selector: 'auth/reset-password',
-    standalone: true,
     imports: [CommonModule, InputTextModule, ButtonModule, ReactiveFormsModule],
     template: `
-        <div class='h-full flex flex-column justify-content-center align-items-center'>
+        <div class='h-full flex flex-col justify-center items-center'>
             <form
                 [formGroup]='form'
                 (ngSubmit)='onSubmit()'
-                class='w-full max-w-30rem flex flex-column gap-3 px-3'
+                class='w-full max-w-[30rem] flex flex-col gap-4 px-4'
             >
                 <input
                 pInputText
@@ -52,7 +51,7 @@ import { InputTextModule } from 'primeng/inputtext';
     `,
     styles: `
     
-    `,
+    `
 })
 export default class ResetPasswordPageComponent implements OnInit {
     private readonly supabase = inject(SupabaseClient);

@@ -9,10 +9,9 @@ import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'pickems-root',
-  standalone: true,
-  imports: [RouterOutlet, ToastModule, MenubarModule],
+  imports: [RouterOutlet, ToastModule, MenubarModule, Menubar],
   template: `
-  <div className='pick-ems'>
+  <div>
     @if(loaded()){
       <p-menubar #menubar [model]='menuItems'/>
     }
@@ -20,8 +19,7 @@ import { Subscription } from 'rxjs';
   <p-toast/>
   <router-outlet />
   `,
-  styles: `
-  `
+  styles: ``
 })
 export class AppComponent implements OnInit {
   title = 'Pick-ems';

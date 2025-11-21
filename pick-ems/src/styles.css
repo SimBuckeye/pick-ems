@@ -1,0 +1,36 @@
+@import 'primeicons/primeicons.css';
+@import 'tailwindcss';
+@import 'tailwindcss-primeui';
+
+:root {
+    --font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    --font-feature-settings: normal;
+    --yellow-highlight: var(--yellow-100);
+    --bs-body-color: white;
+}
+
+html,
+body {
+    margin: 0;
+    width: 100%;
+    height: calc(100% + env(safe-area-inset-top) / 2);
+    overscroll-behavior: contain;
+    font-family: var(--font-family);
+    font-feature-settings: var(--font-feature-settings);
+    background-color: var(--p-surface-1000) !important;
+}
+
+.content {
+    * {
+        margin-top: 0;
+    }
+
+    p {
+        line-height: 1.25;
+    }
+
+    :last-child {
+        margin-bottom: 0;
+    }
+}

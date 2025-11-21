@@ -9,14 +9,13 @@ import { MessageService } from 'primeng/api';
 
 @Component({
     selector: 'login-page',
-    standalone: true,
     imports: [CommonModule, InputTextModule, ButtonModule, ReactiveFormsModule],
     template: `
-        <div class='h-full flex flex-column justify-content-center align-items-center'>
+        <div class='h-full flex flex-col justify-center items-center'>
             <form
                 [formGroup]='form'
                 (ngSubmit)='onSubmit()'
-                class='w-full max-w-30rem flex flex-column gap-3 px-3'
+                class='w-full max-w-[30rem] flex flex-col gap-4 px-4'
             >
                 <!-- Username -->
                 <input
@@ -46,7 +45,7 @@ import { MessageService } from 'primeng/api';
     `,
     styles: `
     
-    `,
+    `
 })
 export default class LoginPageComponent implements OnInit {
     private readonly supabase = inject(SupabaseClient);

@@ -1,4 +1,4 @@
-import { Database } from "./supabase.schema";
+import { Database } from "./supabase.generated";
 
 export type AuthUserModel = Omit<Database['public']['Tables']['auth_user']['Row'], 'created_at'>;
 export type CurrentRoundModel = Omit<Database['public']['Tables']['current_round']['Row'], 'created_at'>;

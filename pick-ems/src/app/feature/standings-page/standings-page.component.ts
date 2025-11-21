@@ -2,40 +2,39 @@ import { Component, computed, effect, HostListener, Inject, inject, OnInit, sign
 import { SupabaseClient } from '@supabase/supabase-js';
 import { TableModule } from 'primeng/table';
 import { StandingsService } from '../../data-access/standings.service';
-import { DropdownModule } from 'primeng/dropdown';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { CheckboxModule } from 'primeng/checkbox';
 import { DOCUMENT } from '@angular/common';
 import { VRoundModel, VStandingsModel } from '../../util/types/supabase.types';
 import { StandingPickerStylePipe } from '../../util/pipes/standing-picker-style.pipe';
+import { SelectModule } from 'primeng/select';
 
 @Component({
   selector: 'pickems-standings-page',
-  standalone: true,
-  imports: [TableModule, DropdownModule, FormsModule, CheckboxModule, StandingPickerStylePipe],
+  imports: [TableModule, SelectModule, FormsModule, CheckboxModule, StandingPickerStylePipe],
   template: `
-    <div class='mt-3 flex flex-row align-items-center'>
-      <p-dropdown 
-        styleClass='mr-3'
+    <div class='mt-4 flex flex-row items-center'>
+      <p-select 
+        styleClass='mr-4'
         [options]='years'
         [(ngModel)]='selectedYear'
         placeholder='Select a year'/>
       <label>
-        <div class='flex flex-row align-items-center'>
+        <div class='flex flex-row items-center'>
           <p-checkbox [(ngModel)]='showExtendedStats' [binary]='true' />
           <span class='ml-2'>Extended Stats</span>
         </div>
       </label>
-      <label class='ml-4'>
-        <div class='flex flex-row align-items-center'>
+      <label class='ml-6'>
+        <div class='flex flex-row items-center'>
           <p-checkbox [(ngModel)]='showLastWeekRecord' [binary]='true' />
           <span class='ml-2'>Last Week</span>
         </div>
       </label>
     </div>
     <!-- If scrollable on large screens, will be hidden by the menubar TODO when updating to primeng 18+ will need more robust solution for smaller breakpoint -->
-    <p-table [value]='standings()' styleClass='mt-3' [scrollable]='vpWidth < 960'> 
+    <p-table [value]='standings()' styleClass='mt-4' [scrollable]='vpWidth < 960'> 
       <ng-template pTemplate='header'>
         <tr>
           <th pFrozenColumn>Picker</th>
@@ -86,7 +85,7 @@ import { StandingPickerStylePipe } from '../../util/pipes/standing-picker-style.
   `,
   styles: `
   
-  `,
+  `
 })
 export default class StandingsPageComponent implements OnInit {
   private readonly supabase: SupabaseClient = inject(SupabaseClient);
