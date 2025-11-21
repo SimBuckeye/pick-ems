@@ -17,6 +17,10 @@ import { PushNotificationService } from '../../util/push-notification.service';
       <h1 class="text-lg">Loading...</h1>
   }@else{
     <div class='mt-2 flex flex-col gap-2'>
+      <p-button styleClass='w-60' class='mt-2' (onClick)='refreshApp()'>
+        <i class='pi pi-refresh'></i>
+        <span>Refresh App</span>
+      </p-button>
       <div [style]='standingModel() | pickerStyle' >{{ nickname() }}</div>
       <label class='w-full flex flex-row items-center'>
         <span class='w-20' >Name:</span>
@@ -137,6 +141,10 @@ export default class ProfilePageComponent implements OnInit {
 
   subscribeToPushNotifications() {
     this.notificationService.subscribeToPushNotifications();
+  }
+
+  refreshApp() {
+    window.location.reload();
   }
 
   ngOnInit(): void {
