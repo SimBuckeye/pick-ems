@@ -37,7 +37,11 @@ select
         when m.winner_is_home is null then null
     else
         m.winner_is_home = p.pick_is_home
-    end as is_win
+    end as is_win,
+	away_team.text_color as away_team_text_color,
+	away_team.background_color as away_team_background_color,
+	home_team.text_color as home_team_text_color,
+	home_team.background_color as home_team_background_color
 from
     pick as p
     left join matchup as m on p.matchup_id = m.id

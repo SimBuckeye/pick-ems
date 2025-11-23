@@ -50,6 +50,8 @@ import { SelectModule } from 'primeng/select';
                             <td [className]='
                                 (pick[game].isBold ? " font-bold" : "") +
                                 (pick[game].isLoss ? " line-through" : "")'
+                                [style.color]='pick[game].text_color'
+                                [style.backgroundColor]='pick[game].background_color'
                                 >{{showTeamName() && pick[game].text !== pick[game].teamName ? pick[game].text + ' (' + pick[game].teamName + ')' : pick[game].text}}</td>
                         }
                     </tr>
@@ -158,7 +160,9 @@ export default class ViewPicksPageComponent implements OnInit {
                         text: pick.pick_text || (pick.pick_is_home ? pick.home_team : pick.away_team),
                         teamName: pick.pick_is_home ? pick.home_team : pick.away_team,
                         isBold: pick.is_win,
-                        isLoss: pick.is_win === false
+                        isLoss: pick.is_win === false,
+                        text_color: pick.pick_is_home ? pick.home_team_text_color : pick.away_team_text_color,
+                        background_color: pick.pick_is_home ? pick.home_team_background_color : pick.away_team_background_color,
                     };
                 } else {
                     let newPick: any = {
@@ -169,7 +173,9 @@ export default class ViewPicksPageComponent implements OnInit {
                     newPick[gameName] = {
                         text: pick.pick_text || (pick.pick_is_home ? pick.home_team : pick.away_team),
                         teamName: pick.pick_is_home ? pick.home_team : pick.away_team,
-                        isBold: pick.is_win, isLoss: pick.is_win === false
+                        isBold: pick.is_win, isLoss: pick.is_win === false,
+                        text_color: pick.pick_is_home ? pick.home_team_text_color : pick.away_team_text_color,
+                        background_color: pick.pick_is_home ? pick.home_team_background_color : pick.away_team_background_color,
                     };
                     picks.push(newPick);
                 }
@@ -217,4 +223,6 @@ type ViewPick = {
     teamName: string,
     isBold: boolean,
     isLoss: boolean,
+    text_color: string,
+    background_color: string,
 }>;
