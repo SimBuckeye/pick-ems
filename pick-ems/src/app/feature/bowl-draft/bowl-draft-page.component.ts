@@ -90,7 +90,7 @@ export default class BowlDraftPageComponent implements OnInit {
     }
     this.draftOpen = currentRoundData.draft_open;
 
-    let { data: matchupsData, error: matchupsError } = await this.supabase.from('v_bowl_matchup').select('*');
+    let { data: matchupsData, error: matchupsError } = await this.supabase.from('v_bowl_matchup').select('*').eq('year', 2025);
     if (!matchupsData || matchupsError) {
       this.messageService.add({ detail: 'Error retrieving details on the bowl matchups: ' + matchupsError?.details, severity: 'error' });
       return;
