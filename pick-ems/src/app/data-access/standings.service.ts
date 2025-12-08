@@ -72,6 +72,7 @@ export class StandingsService {
             .eq('year', currentYear)
             .eq('is_postseason', true)
             .eq('is_b1g_postseason', false)
+            .eq('week', 'Bowls')
             .order('created_at', { ascending: false });
         if (error) {
             this.messageService.add({ detail: 'Error retrieving draft picks: ' + error, severity: 'error' });

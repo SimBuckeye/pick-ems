@@ -72,7 +72,7 @@ export class AppComponent implements OnInit {
     this.userSubscription = this.authService.user$.subscribe((user) => {
       this.buildMenuBar(user ? user.id : '');
     });
-    this.buildMenuBar('');
+    this.buildMenuBar(this.authService.user()?.id ?? '');
   };
 
   async buildMenuBar(uuid: string) {
@@ -104,18 +104,24 @@ export class AppComponent implements OnInit {
             command: () => this.router.navigate(['/profile'])
           },
         ]
+      },
+      {
+        label: 'Draft Central',
+        command: () => this.router.navigate(['/draft-central']),
+        hidden: true,
       }
     ];
 
-    let { data: roundData, error: roundError } = await this.supabase.from('current_round').select('draft_open').single();
-    if (roundError) {
-      this.messageService.add({ severity: 'error', detail: 'Error checking draft status: ' + roundError.message });
-    } else if (roundData && roundData.draft_open) {
-      menuItems[1].items?.push({
-        label: 'Draft Central',
-        command: () => this.router.navigate(['/draft-central'])
-      });
-    }
+    // let { data: roundData, error: roundError } = await this.supabase.from('current_round').select('draft_open').single();
+    // if (roundError) {
+    //   this.messageService.add({ severity: 'error', detail: 'Error checking draft status: ' + roundError.message });
+    // } else if (roundData && roundData.draft_open) {
+    //   menuItems.push({
+    //     label: 'Draft Central',
+    //     command: () => this.router.navigate(['/draft-central']),
+    //     hidden: true
+    //   });
+    // }
 
     if (uuid) {
       menuItems[2].items?.push({
