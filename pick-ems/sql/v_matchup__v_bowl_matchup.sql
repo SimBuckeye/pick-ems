@@ -53,4 +53,5 @@ left join lateral (
   limit 1
 ) home_pick on true
 where m.is_postseason = true
-  and m.is_b1g_postseason = false;
+  and m.is_b1g_postseason = false
+  and m.week = 'Bowls';
