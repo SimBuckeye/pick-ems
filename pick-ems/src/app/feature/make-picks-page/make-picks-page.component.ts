@@ -1,7 +1,7 @@
 import { Component, effect, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { SupabaseClient, User } from '@supabase/supabase-js';
+import { PostgrestError, SupabaseClient, User } from '@supabase/supabase-js';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -10,7 +10,7 @@ import { AuthService } from '../../data-access/auth.service';
 import { InputTextModule } from 'primeng/inputtext';
 import { MatchupAwayTeamPipe, MatchupHomeTeamPipe } from '../../util/pipes/matchup-team.pipe';
 import { MatchupTitlePipe } from '../../util/pipes/matchup-title.pipe';
-import { MatchupModel } from '../../util/types/supabase.types'; //whitespace
+import { MatchupModel, VPickResultModel } from '../../util/types/supabase.types'; //whitespace
 
 @Component({
   selector: 'pickems-make-picks-page',
@@ -22,7 +22,7 @@ import { MatchupModel } from '../../util/types/supabase.types'; //whitespace
       <h1 class="text-2xl">Not currently accepting picks.</h1>
     }@else if(!userId){
       <h1 class="text-2xl">Current user not found. Try logging out and back in.</h1>
-    }@else if(userHasPicks){
+    }@else if(matchups.length === 0 && userHasPicks){
       <h1 class="text-2xl">You have already submitted picks for the current round.</h1>
     }@else {
       <h1 class="text-2xl">Picks now available for week {{round()?.name}}. (U): Underdog</h1>
@@ -77,6 +77,16 @@ export default class MakePicksPageComponent implements OnInit {
   submitting = signal(false);
 
   private async onLoad(user: User) {
+    const uuid = user.id;
+    if (uuid) {
+      let { data: userData, error: userError } = await this.supabase.from('auth_user').select('*').eq('uuid', uuid);
+      if (userError) {
+        this.messageService.add({ detail: 'Error retrieving details on the logged-in user: ' + userError?.details, severity: 'error' });
+      }
+      if (userData && userData.length === 1) {
+        this.userId = userData[0].id;
+      }
+    }
 
     let { data: roundData, error: roundError } = await this.supabase.from('round').select('*').eq('state', 'accepting_picks').order('id', { ascending: true }).limit(1);
     if (roundError) {
@@ -89,35 +99,12 @@ export default class MakePicksPageComponent implements OnInit {
       return;
     }
 
-    let { data: matchupsData, error: matchupsError } = await this.supabase.from('v_matchup').select('*').eq('round', this.round()?.id).order('id', { ascending: true });
-    if (matchupsError) {
-      this.messageService.add({ detail: 'Error retrieving details on the current matchups: ' + matchupsError?.message, severity: 'error' });
-    } else if (matchupsData) {
-      this.matchups = [];
-      const group: Record<string, FormControl> = {};
-      matchupsData.forEach((matchup: any) => {
-        if (!matchup.is_postseason || matchup.is_b1g_postseason) {
-          this.matchups.push(matchup);
-          group[matchup.id] = new FormControl('', Validators.required);
-          group['text_' + matchup.id] = new FormControl('', Validators.maxLength(100));
-        }
-      });
-      this.form = new FormGroup(group);
-    }
-
-    const uuid = user.id;
-    if (uuid) {
-      let { data: userData, error: userError } = await this.supabase.from('auth_user').select('*').eq('uuid', uuid);
-      if (userError) {
-        this.messageService.add({ detail: 'Error retrieving details on the logged-in user: ' + userError?.details, severity: 'error' });
-      }
-      if (userData && userData.length === 1) {
-        this.userId = userData[0].id;
-      }
-    }
-
+    let pickResultData: VPickResultModel[] = [];
+    let pickResultError: PostgrestError | null = null;
     if (this.userId && this.round()) {
-      let { data: pickResultData, error: pickResultError } = await this.supabase.from('v_pick_result').select('*').eq('picker_id', this.userId).eq('round', this.round()?.id);
+      let result = await this.supabase.from('v_pick_result').select('*').eq('picker_id', this.userId).eq('round', this.round()?.id);
+      pickResultData = result.data ?? [];
+      pickResultError = result.error;
       if (pickResultError) {
         this.messageService.add({ detail: 'Error retrieving the list of picks: ' + pickResultError?.details, severity: 'error' });
         this.userHasPicks = true;
@@ -125,6 +112,23 @@ export default class MakePicksPageComponent implements OnInit {
       if (pickResultData && pickResultData.length > 0) {
         this.userHasPicks = true;
       }
+    }
+
+    let { data: matchupsData, error: matchupsError } = await this.supabase.from('v_matchup').select('*').eq('round', this.round()?.id).order('id', { ascending: true });
+    if (matchupsError) {
+      this.messageService.add({ detail: 'Error retrieving details on the current matchups: ' + matchupsError?.message, severity: 'error' });
+    } else if (matchupsData) {
+      this.matchups = [];
+      const group: Record<string, FormControl> = {};
+      matchupsData.forEach((matchup: any) => {
+        const matchupIsPicked = pickResultData.some((pick: any) => pick.matchup_id === matchup.id);
+        if (!matchupIsPicked && (!matchup.is_postseason || matchup.is_b1g_postseason)) {
+          this.matchups.push(matchup);
+          group[matchup.id] = new FormControl('', Validators.required);
+          group['text_' + matchup.id] = new FormControl('', Validators.maxLength(100));
+        }
+      });
+      this.form = new FormGroup(group);
     }
 
     this.loading = false;
