@@ -183,7 +183,6 @@ export default class ViewPicksPageComponent implements OnInit {
             this.picks.set(picks);
             this.soloPicks.sort((a, b) => a.matchup_id! - b.matchup_id!);
         }
-        console.log(JSON.stringify(this.picks()));
     }
 
     ngOnInit() {
