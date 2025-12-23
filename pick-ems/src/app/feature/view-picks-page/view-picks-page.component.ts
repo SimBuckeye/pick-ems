@@ -48,11 +48,11 @@ import { SelectModule } from 'primeng/select';
                         <td pFrozenColumn [style]='pick | pickerStyle' >{{ pick.picker }}</td>
                         @for(game of games; track game){
                             <td [className]='
-                                (pick[game].isBold ? " font-bold" : "") +
-                                (pick[game].isLoss ? " line-through" : "")'
-                                [style.color]='pick[game].text_color'
-                                [style.backgroundColor]='pick[game].background_color'
-                                >{{showTeamName() && pick[game].text !== pick[game].teamName ? pick[game].text + ' (' + pick[game].teamName + ')' : pick[game].text}}</td>
+                                (pick[game]?.isBold ? " font-bold" : "") +
+                                (pick[game]?.isLoss ? " line-through" : "")'
+                                [style.color]='pick[game]?.text_color ?? "white"'
+                                [style.backgroundColor]='pick[game]?.background_color ?? "black"'
+                                >{{showTeamName() && pick[game]?.text !== pick[game]?.teamName ? pick[game]?.text + ' (' + pick[game]?.teamName + ')' : pick[game]?.text}}</td>
                         }
                     </tr>
                 </ng-template>
@@ -183,6 +183,7 @@ export default class ViewPicksPageComponent implements OnInit {
             this.picks.set(picks);
             this.soloPicks.sort((a, b) => a.matchup_id! - b.matchup_id!);
         }
+        console.log(JSON.stringify(this.picks()));
     }
 
     ngOnInit() {
