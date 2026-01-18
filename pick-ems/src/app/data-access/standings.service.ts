@@ -49,11 +49,12 @@ export class StandingsService {
         const { data, error } = await this.supabase.from('v_standings').select('*')
             .order('year', { ascending: false })
             .order('postseason_percentage', { ascending: false })
+            .order('tiebreaker_bonus', { ascending: false })
             .order('points', { ascending: false })
             .order('b1g_percentage', { ascending: false })
             .order('total_percentage', { ascending: false });
         if (error) {
-            this.messageService.add({ detail: 'Error retrieving standings: ' + error, severity: 'error' });
+            this.messageService.add({ detail: 'Error retrieving standings: ' + error.message, severity: 'error' });
             return [];
         }
         return data;
