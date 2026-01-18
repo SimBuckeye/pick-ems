@@ -6,7 +6,7 @@ select
     picker_text_color,
     picker_background_color,
     picker_id,
-    year,
+    t.year,
     b1g_wins,
     b1g_losses,
     case 
@@ -25,7 +25,9 @@ select
     case
         when postseason_wins > 0 or postseason_losses > 0 then postseason_wins::real / (postseason_wins + postseason_losses)::real
         else 0
-    end as postseason_percentage
+    end as postseason_percentage,
+    coalesce(tb.bonus, 0)::smallint as tiebreaker_bonus,
+    t.points as points
 from
 (
     select
@@ -63,11 +65,13 @@ from
         count(*) filter (where
             pr.is_postseason
             and not pr.is_win
-        ) as postseason_losses
+        ) as postseason_losses,
+        SUM(COALESCE(pr.points, 0)) AS points
     from
         auth_user as u
         left join v_pick_result as pr on u.id = pr.picker_id
     group by nickname, year, u.id
 ) t
+left join tiebreaker as tb on t.picker_id = tb.user_id and t.year = tb.year
 where total_losses > 0 or total_wins > 0
 order by year desc, b1g_percentage desc, total_percentage desc
